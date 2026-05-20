@@ -1,0 +1,58 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { validateSession } from '../../../lib/auth';
+
+const env = (Astro.locals as any).runtime?.env;
+const valid = await validateSession(Astro.request.headers.get('cookie'), env?.ADMIN_SECRET);
+if (!valid) return Astro.redirect('/admin');
+
+let allPages: any[] = [];
+try {
+  const res = await env.DB.prepare('SELECT * FROM pages ORDER BY created_at DESC').all();
+  allPages = res.results ?? [];
+} catch {}
+---
+<AdminLayout title="Páginas">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <h1 style="font-size:1.4rem;font-weight:700;">Páginas</h1>
+    <a href="/admin/pages/new" class="btn btn-primary">+ Nueva página</a>
+  </div>
+
+  {allPages.length === 0 ? (
+    <div class="card" style="text-align:center;padding:2.5rem;color:#999;">
+      No hay páginas. <a href="/admin/pages/new">Crea la primera.</a>
+    </div>
+  ) : (
+    <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e0e0e0;">
+      <thead>
+        <tr style="background:#f8f8f8;border-bottom:1px solid #e0e0e0;">
+          <th style="text-align:left;padding:0.75rem 1rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#666;">Título</th>
+          <th style="text-align:left;padding:0.75rem 1rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#666;">Slug</th>
+          <th style="text-align:left;padding:0.75rem 1rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#666;">Estado</th>
+          <th style="text-align:right;padding:0.75rem 1rem;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#666;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {allPages.map(page => (
+          <tr style="border-bottom:1px solid #f0f0f0;">
+            <td style="padding:0.75rem 1rem;font-weight:500;">{page.title}</td>
+            <td style="padding:0.75rem 1rem;font-size:0.875rem;color:#666;font-family:monospace;">/{page.slug}</td>
+            <td style="padding:0.75rem 1rem;">
+              {page.published ? (
+                <span style="font-size:0.75rem;background:#e8f4e8;color:#2a7a2a;padding:0.2rem 0.6rem;border-radius:99px;font-weight:700;">Publicado</span>
+              ) : (
+                <span style="font-size:0.75rem;background:#f4f4f4;color:#888;padding:0.2rem 0.6rem;border-radius:99px;font-weight:700;">Borrador</span>
+              )}
+            </td>
+            <td style="padding:0.75rem 1rem;text-align:right;">
+              <div style="display:inline-flex;gap:0.5rem;">
+                <a href={`/admin/pages/${page.slug}`} class="btn btn-secondary btn-sm">Editar</a>
+                <a href={`/${page.slug}`} target="_blank" class="btn btn-secondary btn-sm">Ver →</a>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</AdminLayout>

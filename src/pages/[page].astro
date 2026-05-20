@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Block from '../components/Block.astro';
+import SectionNav from '../components/SectionNav.astro';
+import type { Block as BlockType, Section } from '../lib/db';
+
+const { page: slug } = Astro.params;
+const env = (Astro.locals as any).runtime?.env;
+
+if (!env?.DB) return Astro.redirect('/');
+
+const page = await env.DB.prepare('SELECT * FROM pages WHERE slug=? AND published=1')
+  .bind(slug).first() as any;
+if (!page) return new Response('Not Found', { status: 404 });
+
+const sectionsRes = await env.DB.prepare(
+  'SELECT * FROM sections WHERE page_id=? ORDER BY order_index'
+).bind(page.id).all();
+const sections: Section[] = sectionsRes.results ?? [];
+
+const blocksRes = await env.DB.prepare(
+  'SELECT * FROM blocks WHERE page_id=? ORDER BY section_id, order_index'
+).bind(page.id).all();
+const allBlocks: BlockType[] = blocksRes.results ?? [];
+
+const blocksBySection: Record<string, BlockType[]> = {};
+for (const block of allBlocks) {
+  const key = block.section_id != null ? String(block.section_id) : '_page';
+  if (!blocksBySection[key]) blocksBySection[key] = [];
+  blocksBySection[key].push(block);
+}
+---
+<Layout title={page.title} description={page.description ?? ''}>
+  <div style="max-width:760px;margin:0 auto;padding:2rem;">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid #e5e5e5;">
+      <p style="font-size:0.8rem;color:#999;text-transform:uppercase;letter-spacing:0.08em;font-family:'Helvetica Neue',Arial,sans-serif;margin-bottom:0.5rem;">
+        <a href="/" style="color:#999;">Inicio</a> /
+      </p>
+      <h1 style="font-size:2rem;line-height:1.25;margin-bottom:0.5rem;">{page.title}</h1>
+      {page.description && (
+        <p style="color:#666;font-size:1rem;font-family:'Helvetica Neue',Arial,sans-serif;margin:0;">{page.description}</p>
+      )}
+    </div>
+
+    <SectionNav sections={sections} pageSlug={slug!} />
+
+    {/* Page-level blocks (sin sección) */}
+    {(blocksBySection['_page'] ?? []).map(block => (
+      <Block block={block} />
+    ))}
+
+    {/* Secciones */}
+    {sections.map(section => (
+      <section id={section.slug} style="margin-top:3rem;padding-top:0.5rem;">
+        <h2 style="font-size:1.5rem;color:#CF8A00;font-family:'Georgia',serif;margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:1px solid #f0e0c0;">
+          {section.title}
+        </h2>
+        {(blocksBySection[String(section.id)] ?? []).map(block => (
+          <Block block={block} />
+        ))}
+        {!(blocksBySection[String(section.id)]?.length) && (
+          <p style="color:#bbb;font-style:italic;font-size:0.875rem;">Contenido próximamente...</p>
+        )}
+      </section>
+    ))}
+  </div>
+</Layout>

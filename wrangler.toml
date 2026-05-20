@@ -1,0 +1,15 @@
+name = "liberal-venezuela"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "liberal-venezuela-db"
+database_id = "REEMPLAZAR_CON_TU_ID"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "liberal-venezuela-images"
+
+# Secrets (nunca poner aqui, usar: wrangler secret put ADMIN_SECRET)
+# Para desarrollo local usa .dev.vars

@@ -1,0 +1,61 @@
+---
+interface Props {
+  sections: Array<{ id: number; slug: string; title: string }>;
+  pageSlug: string;
+  currentSection?: string;
+}
+const { sections, pageSlug, currentSection } = Astro.props;
+---
+
+{sections.length > 1 && (
+  <nav class="section-nav">
+    <p class="nav-label">Contenido</p>
+    <ol>
+      {sections.map(s => (
+        <li>
+          <a
+            href={`/${pageSlug}/${s.slug}`}
+            class:list={['nav-link', { active: currentSection === s.slug }]}
+          >
+            {s.title}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style>
+  .section-nav {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-left: 3px solid #CF8A00;
+    border-radius: 0 6px 6px 0;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .nav-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: #999;
+    margin-bottom: 0.6rem;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  ol {
+    list-style: decimal;
+    padding-left: 1.2rem;
+  }
+  li { margin-bottom: 0.3rem; }
+  .nav-link {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.9rem;
+    color: #003DA5;
+  }
+  .nav-link.active {
+    color: #CF142B;
+    font-weight: 600;
+  }
+  .nav-link:hover { color: #CF142B; }
+</style>

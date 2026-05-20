@@ -1,0 +1,42 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const env = (Astro.locals as any).runtime?.env;
+let pubPages: Array<{ slug: string; title: string; description: string | null }> = [];
+try {
+  if (env?.DB) {
+    const res = await env.DB.prepare('SELECT slug, title, description FROM pages WHERE published=1 ORDER BY title').all();
+    pubPages = res.results ?? [];
+  }
+} catch {}
+---
+<Layout title="Inicio">
+  <div style="max-width:760px;margin:0 auto;padding:3rem 2rem 2rem;">
+    <div style="margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid #e5e5e5;">
+      <h1 style="font-size:2.25rem;margin-bottom:0.6rem;line-height:1.2;">Venezuela Liberal</h1>
+      <p style="font-size:1.05rem;color:#666;font-family:'Helvetica Neue',Arial,sans-serif;max-width:520px;">
+        Propuestas, ideas y análisis para construir una Venezuela libre, próspera y justa.
+      </p>
+    </div>
+
+    {pubPages.length === 0 && (
+      <p style="color:#999;font-style:italic;">El contenido estará disponible próximamente.</p>
+    )}
+
+    <div style="display:grid;gap:1rem;">
+      {pubPages.map(page => (
+        <a
+          href={`/${page.slug}`}
+          style="display:block;background:#fff;border:1px solid #e5e5e5;border-left:4px solid #CF8A00;border-radius:0 6px 6px 0;padding:1.25rem 1.5rem;text-decoration:none;transition:border-left-color 0.15s;"
+          onmouseover="this.style.borderLeftColor='#CF142B'"
+          onmouseout="this.style.borderLeftColor='#CF8A00'"
+        >
+          <h2 style="font-size:1.15rem;color:#1a1a1a;margin-bottom:0.3rem;">{page.title}</h2>
+          {page.description && (
+            <p style="color:#666;font-size:0.9rem;font-family:'Helvetica Neue',Arial,sans-serif;margin:0;">{page.description}</p>
+          )}
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>

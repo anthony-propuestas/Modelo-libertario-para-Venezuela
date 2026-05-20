@@ -1,0 +1,94 @@
+---
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — Admin Venezuela Liberal</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amarillo: #CF8A00;
+      --azul: #003DA5;
+      --rojo: #CF142B;
+      --text: #1a1a1a;
+      --muted: #666;
+      --border: #e0e0e0;
+      --bg: #f4f4f5;
+      --white: #fff;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.5; }
+    a { color: var(--azul); text-decoration: none; }
+    a:hover { text-decoration: underline; color: var(--rojo); }
+    input[type="text"], input[type="password"], input[type="email"], textarea, select {
+      width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border);
+      border-radius: 4px; font-size: 0.9rem; font-family: inherit; background: var(--white);
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+      outline: none; border-color: var(--azul);
+    }
+    textarea { resize: vertical; min-height: 120px; }
+    button, .btn {
+      padding: 0.45rem 1rem; border: none; border-radius: 4px; cursor: pointer;
+      font-size: 0.875rem; font-family: inherit; font-weight: 500; display: inline-block;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .btn-primary { background: var(--azul); color: #fff; }
+    .btn-primary:hover { background: #002d7a; color: #fff; text-decoration: none; }
+    .btn-danger { background: var(--rojo); color: #fff; }
+    .btn-danger:hover { background: #a8102a; color: #fff; text-decoration: none; }
+    .btn-secondary { background: #e5e5e7; color: var(--text); }
+    .btn-secondary:hover { background: #d0d0d3; color: var(--text); text-decoration: none; }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+    label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .field { margin-bottom: 1rem; }
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem;
+      border-radius: 6px; font-size: 0.875rem; z-index: 9999;
+      display: none; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #toast.show { display: block; }
+  </style>
+</head>
+<body>
+  <div style="height:4px;background:linear-gradient(to right,#CF8A00 33.33%,#003DA5 33.33%,#003DA5 66.66%,#CF142B 66.66%)"></div>
+
+  <div style="background:var(--white);border-bottom:1px solid var(--border);padding:0.75rem 2rem;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <a href="/admin/dashboard" style="font-weight:700;color:var(--text);font-size:0.9rem;">⚙ Admin</a>
+      <a href="/admin/pages" style="font-size:0.875rem;color:var(--muted);">Páginas</a>
+    </div>
+    <div style="display:flex;gap:1rem;align-items:center;">
+      <a href="/" target="_blank" style="font-size:0.8rem;color:var(--muted);">Ver sitio →</a>
+      <form action="/api/auth/logout" method="post" style="margin:0;">
+        <button type="submit" class="btn btn-secondary btn-sm">Salir</button>
+      </form>
+    </div>
+  </div>
+
+  <div style="max-width:920px;margin:0 auto;padding:2rem 1.5rem;">
+    <slot />
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    (window as any).showToast = function(msg: string, ok = true) {
+      const t = document.getElementById('toast')!;
+      t.textContent = msg;
+      t.style.background = ok ? '#1a1a1a' : '#CF142B';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { validateSession } from '../../lib/auth';
+
+const env = (Astro.locals as any).runtime?.env;
+const valid = await validateSession(Astro.request.headers.get('cookie'), env?.ADMIN_SECRET);
+if (!valid) return Astro.redirect('/admin');
+
+let allPages: any[] = [];
+let totalSections = 0;
+let totalBlocks = 0;
+try {
+  const pagesRes = await env.DB.prepare('SELECT * FROM pages ORDER BY created_at DESC').all();
+  allPages = pagesRes.results ?? [];
+  const secRes = await env.DB.prepare('SELECT COUNT(*) as c FROM sections').first();
+  totalSections = secRes?.c ?? 0;
+  const blkRes = await env.DB.prepare('SELECT COUNT(*) as c FROM blocks').first();
+  totalBlocks = blkRes?.c ?? 0;
+} catch {}
+
+const published = allPages.filter(p => p.published === 1).length;
+---
+<AdminLayout title="Dashboard">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.75rem;">
+    <h1 style="font-size:1.4rem;font-weight:700;">Panel de control</h1>
+    <a href="/admin/pages/new" class="btn btn-primary">+ Nueva página</a>
+  </div>
+
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem;">
+    {[
+      { label: 'Páginas', value: allPages.length, color: '#003DA5' },
+      { label: 'Publicadas', value: published, color: '#CF8A00' },
+      { label: 'Secciones', value: totalSections, color: '#555' },
+      { label: 'Bloques', value: totalBlocks, color: '#555' },
+    ].map(stat => (
+      <div class="card" style="text-align:center;padding:1rem;">
+        <div style={`font-size:2rem;font-weight:700;color:${stat.color};`}>{stat.value}</div>
+        <div style="font-size:0.75rem;color:#999;text-transform:uppercase;letter-spacing:0.07em;margin-top:0.25rem;">{stat.label}</div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Pages list -->
+  <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.06em;font-size:0.8rem;">Páginas</h2>
+  {allPages.length === 0 && (
+    <div class="card" style="text-align:center;padding:2rem;color:#999;">
+      <p>No hay páginas todavía.</p>
+      <a href="/admin/pages/new" class="btn btn-primary" style="margin-top:1rem;display:inline-block;">Crear primera página</a>
+    </div>
+  )}
+  {allPages.map(page => (
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.875rem 1.25rem;">
+      <div>
+        <span style="font-weight:600;">{page.title}</span>
+        <span style="font-size:0.8rem;color:#999;margin-left:0.75rem;">/{page.slug}</span>
+        {page.published ? (
+          <span style="margin-left:0.5rem;font-size:0.7rem;background:#e8f4e8;color:#2a7a2a;padding:0.15rem 0.5rem;border-radius:99px;font-weight:700;">PUBLICADO</span>
+        ) : (
+          <span style="margin-left:0.5rem;font-size:0.7rem;background:#f4f4f4;color:#999;padding:0.15rem 0.5rem;border-radius:99px;font-weight:700;">BORRADOR</span>
+        )}
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <a href={`/admin/pages/${page.slug}`} class="btn btn-secondary btn-sm">Editar</a>
+        <a href={`/${page.slug}`} target="_blank" class="btn btn-secondary btn-sm">Ver →</a>
+      </div>
+    </div>
+  ))}
+</AdminLayout>

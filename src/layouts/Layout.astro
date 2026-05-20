@@ -1,0 +1,75 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '' } = Astro.props;
+
+let navPages: Array<{ slug: string; title: string }> = [];
+try {
+  const env = (Astro.locals as any).runtime?.env;
+  if (env?.DB) {
+    const res = await env.DB.prepare('SELECT slug, title FROM pages WHERE published=1 ORDER BY title').all();
+    navPages = res.results ?? [];
+  }
+} catch {}
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — Venezuela Liberal</title>
+  {description && <meta name="description" content={description} />}
+  <link rel="icon" href="/favicon.svg" />
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amarillo: #CF8A00;
+      --azul: #003DA5;
+      --rojo: #CF142B;
+      --text: #1a1a1a;
+      --muted: #666;
+      --border: #e5e5e5;
+      --bg: #fafafa;
+      --white: #fff;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    a { color: var(--azul); text-decoration: none; }
+    a:hover { color: var(--rojo); text-decoration: underline; }
+    img { max-width: 100%; height: auto; display: block; }
+    p { margin-bottom: 1rem; }
+    p:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <!-- Barra tricolor venezolana -->
+  <div style="height:5px;background:linear-gradient(to right,#CF8A00 33.33%,#003DA5 33.33%,#003DA5 66.66%,#CF142B 66.66%)"></div>
+
+  <header style="background:var(--white);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+    <a href="/" style="font-size:1.35rem;font-weight:bold;color:var(--text);font-family:'Helvetica Neue',Arial,sans-serif;letter-spacing:-0.03em;text-decoration:none;">
+      Venezuela Liberal
+    </a>
+    <nav style="display:flex;gap:1.25rem;flex-wrap:wrap;">
+      {navPages.map(p => (
+        <a href={`/${p.slug}`} style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:0.875rem;font-weight:500;">{p.title}</a>
+      ))}
+    </nav>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer style="border-top:1px solid var(--border);margin-top:5rem;padding:1.5rem 2rem;text-align:center;font-size:0.8rem;color:var(--muted);font-family:'Helvetica Neue',Arial,sans-serif;">
+    Ideas para una Venezuela libre y próspera
+  </footer>
+</body>
+</html>

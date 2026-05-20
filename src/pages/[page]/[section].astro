@@ -1,0 +1,75 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Block from '../../components/Block.astro';
+import SectionNav from '../../components/SectionNav.astro';
+import type { Block as BlockType, Section } from '../../lib/db';
+
+const { page: pageSlug, section: sectionSlug } = Astro.params;
+const env = (Astro.locals as any).runtime?.env;
+
+if (!env?.DB) return Astro.redirect('/');
+
+const page = await env.DB.prepare('SELECT * FROM pages WHERE slug=? AND published=1')
+  .bind(pageSlug).first() as any;
+if (!page) return new Response('Not Found', { status: 404 });
+
+const section = await env.DB.prepare('SELECT * FROM sections WHERE page_id=? AND slug=?')
+  .bind(page.id, sectionSlug).first() as any;
+if (!section) return new Response('Not Found', { status: 404 });
+
+const sectionsRes = await env.DB.prepare(
+  'SELECT * FROM sections WHERE page_id=? ORDER BY order_index'
+).bind(page.id).all();
+const allSections: Section[] = sectionsRes.results ?? [];
+
+const blocksRes = await env.DB.prepare(
+  'SELECT * FROM blocks WHERE section_id=? ORDER BY order_index'
+).bind(section.id).all();
+const blocks: BlockType[] = blocksRes.results ?? [];
+---
+<Layout title={`${section.title} — ${page.title}`} description={page.description ?? ''}>
+  <div style="max-width:760px;margin:0 auto;padding:2rem;">
+    <div style="margin-bottom:1.5rem;">
+      <p style="font-size:0.8rem;color:#999;text-transform:uppercase;letter-spacing:0.08em;font-family:'Helvetica Neue',Arial,sans-serif;margin-bottom:0.75rem;">
+        <a href="/" style="color:#999;">Inicio</a> /
+        <a href={`/${pageSlug}`} style="color:#999;">{page.title}</a> /
+        {section.title}
+      </p>
+    </div>
+
+    <SectionNav sections={allSections} pageSlug={pageSlug!} currentSection={sectionSlug} />
+
+    <h1 style="font-size:1.75rem;color:#CF8A00;font-family:'Georgia',serif;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:2px solid #CF8A00;">
+      {section.title}
+    </h1>
+
+    {blocks.map(block => (
+      <Block block={block} />
+    ))}
+
+    {!blocks.length && (
+      <p style="color:#bbb;font-style:italic;">Contenido próximamente...</p>
+    )}
+
+    <!-- Navegación entre secciones -->
+    {allSections.length > 1 && (() => {
+      const idx = allSections.findIndex(s => s.slug === sectionSlug);
+      const prev = idx > 0 ? allSections[idx - 1] : null;
+      const next = idx < allSections.length - 1 ? allSections[idx + 1] : null;
+      return (
+        <nav style="display:flex;justify-content:space-between;margin-top:3rem;padding-top:1.5rem;border-top:1px solid #e5e5e5;font-family:'Helvetica Neue',Arial,sans-serif;font-size:0.875rem;">
+          <div>
+            {prev && (
+              <a href={`/${pageSlug}/${prev.slug}`} style="color:#003DA5;">← {prev.title}</a>
+            )}
+          </div>
+          <div>
+            {next && (
+              <a href={`/${pageSlug}/${next.slug}`} style="color:#003DA5;">{next.title} →</a>
+            )}
+          </div>
+        </nav>
+      );
+    })()}
+  </div>
+</Layout>

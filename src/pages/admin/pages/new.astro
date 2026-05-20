@@ -1,0 +1,85 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { validateSession } from '../../../lib/auth';
+
+const env = (Astro.locals as any).runtime?.env;
+const valid = await validateSession(Astro.request.headers.get('cookie'), env?.ADMIN_SECRET);
+if (!valid) return Astro.redirect('/admin');
+---
+<AdminLayout title="Nueva página">
+  <div style="max-width:560px;">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.75rem;">
+      <a href="/admin/pages" class="btn btn-secondary btn-sm">← Volver</a>
+      <h1 style="font-size:1.4rem;font-weight:700;">Nueva página</h1>
+    </div>
+
+    <div class="card">
+      <form id="new-page-form">
+        <div class="field">
+          <label for="title">Título de la página</label>
+          <input type="text" id="title" name="title" placeholder="Ej: Política Económica" required />
+        </div>
+        <div class="field">
+          <label for="slug">Slug (URL)</label>
+          <input type="text" id="slug" name="slug" placeholder="politica-economica" required
+            pattern="[a-z0-9-]+" title="Solo letras minúsculas, números y guiones" />
+          <p style="font-size:0.75rem;color:#999;margin-top:0.3rem;">La URL será: tudominio.com/<span id="slug-preview">politica-economica</span></p>
+        </div>
+        <div class="field">
+          <label for="description">Descripción (opcional)</label>
+          <input type="text" id="description" name="description" placeholder="Breve descripción de esta sección" />
+        </div>
+        <div id="form-error" style="display:none;" class="error"></div>
+        <button type="submit" class="btn btn-primary">Crear página</button>
+      </form>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .error { background:#fff0f0;border:1px solid #CF142B;color:#CF142B;border-radius:5px;padding:0.6rem 0.75rem;font-size:0.875rem;margin-bottom:1rem; }
+</style>
+
+<script>
+  const titleInput = document.getElementById('title') as HTMLInputElement;
+  const slugInput = document.getElementById('slug') as HTMLInputElement;
+  const slugPreview = document.getElementById('slug-preview')!;
+  const errorDiv = document.getElementById('form-error')!;
+
+  titleInput.addEventListener('input', () => {
+    const slug = titleInput.value.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    slugInput.value = slug;
+    slugPreview.textContent = slug || 'mi-pagina';
+  });
+
+  slugInput.addEventListener('input', () => {
+    slugPreview.textContent = slugInput.value || 'mi-pagina';
+  });
+
+  document.getElementById('new-page-form')!.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    errorDiv.style.display = 'none';
+
+    const res = await fetch('/api/admin/pages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: (form.querySelector('[name="title"]') as HTMLInputElement).value,
+        slug: (form.querySelector('[name="slug"]') as HTMLInputElement).value,
+        description: (form.querySelector('[name="description"]') as HTMLInputElement).value || null,
+      }),
+    });
+
+    if (res.ok) {
+      const page = await res.json() as any;
+      window.location.href = `/admin/pages/${page.slug}`;
+    } else {
+      const msg = await res.text();
+      errorDiv.textContent = msg || 'Error al crear la página';
+      errorDiv.style.display = 'block';
+    }
+  });
+</script>

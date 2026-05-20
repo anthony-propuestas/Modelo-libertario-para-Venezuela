@@ -1,0 +1,324 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { validateSession } from '../../../lib/auth';
+import type { Section, Block } from '../../../lib/db';
+
+const env = (Astro.locals as any).runtime?.env;
+const valid = await validateSession(Astro.request.headers.get('cookie'), env?.ADMIN_SECRET);
+if (!valid) return Astro.redirect('/admin');
+
+const { slug } = Astro.params;
+const page = await env.DB.prepare('SELECT * FROM pages WHERE slug=?').bind(slug).first() as any;
+if (!page) return Astro.redirect('/admin/pages');
+
+const sectionsRes = await env.DB.prepare(
+  'SELECT * FROM sections WHERE page_id=? ORDER BY order_index'
+).bind(page.id).all();
+const sections: Section[] = sectionsRes.results ?? [];
+
+const blocksRes = await env.DB.prepare(
+  'SELECT * FROM blocks WHERE page_id=? ORDER BY section_id, order_index'
+).bind(page.id).all();
+const allBlocks: Block[] = blocksRes.results ?? [];
+
+const blocksBySection: Record<string, Block[]> = {};
+for (const block of allBlocks) {
+  const key = block.section_id != null ? String(block.section_id) : '_page';
+  if (!blocksBySection[key]) blocksBySection[key] = [];
+  blocksBySection[key].push(block);
+}
+---
+<AdminLayout title={`Editando: ${page.title}`}>
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <a href="/admin/pages" class="btn btn-secondary btn-sm">← Páginas</a>
+      <h1 style="font-size:1.3rem;font-weight:700;">{page.title}</h1>
+      {page.published ? (
+        <span style="font-size:0.7rem;background:#e8f4e8;color:#2a7a2a;padding:0.2rem 0.55rem;border-radius:99px;font-weight:700;">PUBLICADO</span>
+      ) : (
+        <span style="font-size:0.7rem;background:#f4f4f4;color:#888;padding:0.2rem 0.55rem;border-radius:99px;font-weight:700;">BORRADOR</span>
+      )}
+    </div>
+    <div style="display:flex;gap:0.5rem;">
+      <a href={`/${page.slug}`} target="_blank" class="btn btn-secondary btn-sm">Ver página →</a>
+      <button onclick="deletePage()" class="btn btn-danger btn-sm">Eliminar página</button>
+    </div>
+  </div>
+
+  <!-- Metadata form -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <form id="page-meta-form">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="field" style="margin:0;">
+          <label>Título</label>
+          <input type="text" name="title" value={page.title} required />
+        </div>
+        <div class="field" style="margin:0;">
+          <label>URL (slug)</label>
+          <input type="text" value={`/${page.slug}`} disabled style="background:#f0f0f0;color:#888;" />
+        </div>
+      </div>
+      <div class="field" style="margin:1rem 0 0.75rem;">
+        <label>Descripción</label>
+        <input type="text" name="description" value={page.description ?? ''} placeholder="Descripción breve para la portada" />
+      </div>
+      <div style="display:flex;align-items:center;gap:1.25rem;">
+        <label style="display:flex;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0;font-size:0.875rem;cursor:pointer;font-weight:500;color:#1a1a1a;">
+          <input type="checkbox" name="published" checked={page.published === 1} style="width:auto;accent-color:#003DA5;" />
+          Publicado (visible en el sitio)
+        </label>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Sections header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+    <h2 style="font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#666;font-size:0.8rem;">Secciones</h2>
+    <button
+      class="btn btn-secondary btn-sm"
+      onclick="document.getElementById('new-section-box').style.display='block';this.style.display='none';"
+    >+ Nueva sección</button>
+  </div>
+
+  <!-- New section form -->
+  <div id="new-section-box" class="card" style="display:none;border-left:3px solid #003DA5;margin-bottom:1rem;">
+    <form id="new-section-form">
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.75rem;align-items:end;">
+        <div class="field" style="margin:0;">
+          <label>Título</label>
+          <input type="text" id="new-sec-title" placeholder="Ej: Libertad Económica" required />
+        </div>
+        <div class="field" style="margin:0;">
+          <label>Slug</label>
+          <input type="text" id="new-sec-slug" placeholder="libertad-economica" required pattern="[a-z0-9-]+" />
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <button type="submit" class="btn btn-primary">Crear</button>
+          <button type="button" onclick="document.getElementById('new-section-box').style.display='none';document.querySelector('[onclick*=new-section-box]').style.display='';" class="btn btn-secondary">✕</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {sections.length === 0 && (
+    <div class="card" style="text-align:center;padding:1.5rem;color:#bbb;">
+      <p style="font-size:0.9rem;">No hay secciones. Crea la primera usando el botón de arriba.</p>
+    </div>
+  )}
+
+  <!-- Sections list -->
+  {sections.map((section, si) => (
+    <div class="card section-card" data-section-id={section.id} style="border-left:3px solid #CF8A00;margin-bottom:1rem;">
+      <!-- Section header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;flex:1;">
+          <span style="font-size:0.75rem;color:#ccc;font-weight:700;min-width:1.5rem;">#{si + 1}</span>
+          <input
+            type="text"
+            value={section.title}
+            class="section-title-input"
+            data-section-id={section.id}
+            style="font-weight:600;font-size:0.95rem;border:1px solid transparent;border-radius:4px;padding:0.3rem 0.5rem;background:transparent;flex:1;max-width:320px;"
+            onfocus="this.style.borderColor='#003DA5';this.style.background='#fff';"
+            onblur={`this.style.borderColor='transparent';this.style.background='transparent';saveSection(${section.id},{title:this.value})`}
+          />
+        </div>
+        <div style="display:flex;gap:0.4rem;">
+          {si > 0 && <button class="btn btn-secondary btn-sm" onclick={`moveSec(${si}, -1)`} title="Subir">↑</button>}
+          {si < sections.length - 1 && <button class="btn btn-secondary btn-sm" onclick={`moveSec(${si}, 1)`} title="Bajar">↓</button>}
+          <button class="btn btn-danger btn-sm" onclick={`deleteSection(${section.id})`}>Eliminar</button>
+        </div>
+      </div>
+
+      <!-- Blocks -->
+      <div id={`blocks-${section.id}`}>
+        {(blocksBySection[String(section.id)] ?? []).map((block, bi) => {
+          const sectionBlocks = blocksBySection[String(section.id)] ?? [];
+          return (
+            <div class="block-item" data-block-id={block.id} style="border:1px solid #ebebeb;border-radius:6px;padding:0.875rem;margin-bottom:0.75rem;background:#fafafa;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                <span style={`font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.15rem 0.5rem;border-radius:3px;${
+                  block.type === 'heading' ? 'background:#fff3cd;color:#856404;' :
+                  block.type === 'text' ? 'background:#d1ecf1;color:#0c5460;' :
+                  block.type === 'image' ? 'background:#d4edda;color:#155724;' :
+                  'background:#f8d7da;color:#721c24;'
+                }`}>{block.type}</span>
+                <div style="display:flex;gap:0.3rem;">
+                  {bi > 0 && <button class="btn btn-secondary btn-sm" onclick={`moveBlk(${block.id},${section.id},-1)`}>↑</button>}
+                  {bi < sectionBlocks.length - 1 && <button class="btn btn-secondary btn-sm" onclick={`moveBlk(${block.id},${section.id},1)`}>↓</button>}
+                  <button class="btn btn-danger btn-sm" onclick={`deleteBlock(${block.id})`}>✕</button>
+                </div>
+              </div>
+
+              {block.type === 'heading' && (
+                <div style="display:flex;gap:0.5rem;">
+                  <input type="text" value={block.content} data-block-id={block.id} class="block-input" placeholder="Título del encabezado" style="flex:1;" />
+                  <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.previousElementSibling.value)`}>Guardar</button>
+                </div>
+              )}
+
+              {block.type === 'text' && (
+                <div>
+                  <textarea data-block-id={block.id} class="block-input" style="width:100%;min-height:100px;font-family:monospace;font-size:0.82rem;line-height:1.5;">{block.content}</textarea>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;">
+                    <span style="font-size:0.72rem;color:#aaa;">Markdown soportado: **negrita**, *cursiva*, ## título, &gt; cita</span>
+                    <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.parentElement.previousElementSibling.value)`}>Guardar</button>
+                  </div>
+                </div>
+              )}
+
+              {block.type === 'image' && (
+                <div>
+                  {block.content && (
+                    <img src={`/api/image/${block.content}`} alt="" style="max-height:100px;border-radius:4px;margin-bottom:0.5rem;border:1px solid #eee;" />
+                  )}
+                  <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <input type="file" accept="image/*" data-block-id={block.id} class="img-input" style="flex:1;font-size:0.85rem;" />
+                    <button class="btn btn-primary btn-sm" onclick={`uploadImg(${block.id},this.previousElementSibling)`}>Subir</button>
+                  </div>
+                </div>
+              )}
+
+              {block.type === 'video' && (
+                <div style="display:flex;gap:0.5rem;">
+                  <input type="text" value={block.content} data-block-id={block.id} class="block-input" placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..." style="flex:1;font-size:0.875rem;" />
+                  <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.previousElementSibling.value)`}>Guardar</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- Add block buttons -->
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.75rem;border-top:1px dashed #e5e5e5;">
+        <span style="font-size:0.75rem;color:#aaa;align-self:center;font-weight:600;">Añadir:</span>
+        {(['heading', 'text', 'image', 'video'] as const).map(t => (
+          <button class="btn btn-secondary btn-sm" onclick={`addBlock(${page.id},${section.id},'${t}')`}>
+            {t === 'heading' ? '📌 Encabezado' : t === 'text' ? '✍ Texto' : t === 'image' ? '🖼 Imagen' : '▶ Video'}
+          </button>
+        ))}
+      </div>
+    </div>
+  ))}
+</AdminLayout>
+
+<script define:vars={{ pageSlug: page.slug, pageId: page.id, sectionsData: sections.map(s => ({ id: s.id, order_index: s.order_index })) }}>
+  // ── Page metadata ──────────────────────────────────────────────
+  document.getElementById('page-meta-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const res = await fetch(`/api/admin/pages/${pageSlug}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: f.title.value,
+        description: f.description.value || null,
+        published: f.published.checked ? 1 : 0,
+      }),
+    });
+    res.ok ? showToast('Guardado') : showToast('Error al guardar', false);
+  });
+
+  // ── New section ─────────────────────────────────────────────────
+  document.getElementById('new-sec-title').addEventListener('input', function() {
+    document.getElementById('new-sec-slug').value = this.value.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  });
+
+  document.getElementById('new-section-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('new-sec-title').value;
+    const slug = document.getElementById('new-sec-slug').value;
+    const res = await fetch('/api/admin/sections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page_id: pageId, title, slug }),
+    });
+    if (res.ok) location.reload();
+    else { const t = await res.text(); showToast(t || 'Error', false); }
+  });
+
+  // ── Sections ────────────────────────────────────────────────────
+  async function saveSection(id, fields) {
+    await fetch(`/api/admin/sections/${id}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fields),
+    });
+  }
+
+  async function moveSec(idx, dir) {
+    const target = idx + dir;
+    if (target < 0 || target >= sectionsData.length) return;
+    const [a, b] = [sectionsData[idx], sectionsData[target]];
+    await Promise.all([
+      fetch(`/api/admin/sections/${a.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: b.order_index }) }),
+      fetch(`/api/admin/sections/${b.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: a.order_index }) }),
+    ]);
+    location.reload();
+  }
+
+  async function deleteSection(id) {
+    if (!confirm('¿Eliminar sección y todo su contenido?')) return;
+    const res = await fetch(`/api/admin/sections/${id}`, { method: 'DELETE' });
+    res.ok ? location.reload() : showToast('Error al eliminar', false);
+  }
+
+  // ── Blocks ──────────────────────────────────────────────────────
+  async function addBlock(pgId, secId, type) {
+    const res = await fetch('/api/admin/blocks', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page_id: pgId, section_id: secId, type, content: '' }),
+    });
+    res.ok ? location.reload() : showToast('Error', false);
+  }
+
+  async function saveBlkContent(id, content) {
+    const res = await fetch(`/api/admin/blocks/${id}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    res.ok ? showToast('Guardado') : showToast('Error al guardar', false);
+  }
+
+  async function deleteBlock(id) {
+    if (!confirm('¿Eliminar este bloque?')) return;
+    const res = await fetch(`/api/admin/blocks/${id}`, { method: 'DELETE' });
+    res.ok ? location.reload() : showToast('Error al eliminar', false);
+  }
+
+  async function moveBlk(id, sectionId, dir) {
+    const container = document.getElementById(`blocks-${sectionId}`);
+    const rows = [...container.querySelectorAll('.block-item')];
+    const idx = rows.findIndex(r => r.dataset.blockId == id);
+    const target = idx + dir;
+    if (target < 0 || target >= rows.length) return;
+    const targetId = rows[target].dataset.blockId;
+    await Promise.all([
+      fetch(`/api/admin/blocks/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: target }) }),
+      fetch(`/api/admin/blocks/${targetId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: idx }) }),
+    ]);
+    location.reload();
+  }
+
+  async function uploadImg(blockId, input) {
+    if (!input.files?.[0]) { showToast('Selecciona un archivo', false); return; }
+    const form = new FormData();
+    form.append('file', input.files[0]);
+    const up = await fetch('/api/admin/upload', { method: 'POST', body: form });
+    if (!up.ok) { showToast('Error al subir imagen', false); return; }
+    const { key } = await up.json();
+    await saveBlkContent(blockId, key);
+    location.reload();
+  }
+
+  async function deletePage() {
+    if (!confirm(`¿Eliminar la página "${pageSlug}" y todo su contenido? Esta acción no se puede deshacer.`)) return;
+    const res = await fetch(`/api/admin/pages/${pageSlug}`, { method: 'DELETE' });
+    if (res.ok) window.location.href = '/admin/pages';
+    else showToast('Error al eliminar', false);
+  }
+</script>
