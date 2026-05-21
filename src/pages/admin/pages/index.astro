@@ -6,10 +6,19 @@ const env = (Astro.locals as any).runtime?.env;
 const valid = await validateSession(Astro.request.headers.get('cookie'), env?.ADMIN_SECRET);
 if (!valid) return Astro.redirect('/admin');
 
+const PAGE_SIZE = 20;
+const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10));
+const offset = (currentPage - 1) * PAGE_SIZE;
+
 let allPages: any[] = [];
+let totalPages = 1;
 try {
-  const res = await env.DB.prepare('SELECT * FROM pages ORDER BY created_at DESC').all();
-  allPages = res.results ?? [];
+  const [pagesRes, countRes] = await Promise.all([
+    env.DB.prepare('SELECT * FROM pages ORDER BY created_at DESC LIMIT ? OFFSET ?').bind(PAGE_SIZE, offset).all(),
+    env.DB.prepare('SELECT COUNT(*) as total FROM pages').first(),
+  ]);
+  allPages = pagesRes.results ?? [];
+  totalPages = Math.ceil(((countRes as any)?.total ?? 0) / PAGE_SIZE) || 1;
 } catch {}
 ---
 <AdminLayout title="Páginas">
@@ -54,5 +63,19 @@ try {
         ))}
       </tbody>
     </table>
+  )}
+
+  {totalPages > 1 && (
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;font-size:0.875rem;font-family:'Helvetica Neue',Arial,sans-serif;">
+      <span style="color:var(--muted);">Página {currentPage} de {totalPages}</span>
+      <div style="display:flex;gap:0.5rem;">
+        {currentPage > 1 && (
+          <a href={`?page=${currentPage - 1}`} class="btn btn-secondary btn-sm">← Anterior</a>
+        )}
+        {currentPage < totalPages && (
+          <a href={`?page=${currentPage + 1}`} class="btn btn-secondary btn-sm">Siguiente →</a>
+        )}
+      </div>
+    </div>
   )}
 </AdminLayout>

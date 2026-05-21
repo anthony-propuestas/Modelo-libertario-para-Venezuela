@@ -145,10 +145,13 @@ for (const block of allBlocks) {
 
                 {block.type === 'text' && (
                   <div>
-                    <textarea data-block-id={block.id} class="block-input" style="width:100%;min-height:100px;font-family:monospace;font-size:0.82rem;line-height:1.5;">{block.content}</textarea>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                      <textarea data-block-id={block.id} class="block-input md-editor" style="width:100%;min-height:120px;font-family:monospace;font-size:0.82rem;line-height:1.5;" oninput={`updateMdPreview(this)`}>{block.content}</textarea>
+                      <div class="md-preview" style="min-height:120px;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
+                    </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;">
                       <span style="font-size:0.72rem;color:var(--muted);">Markdown: **negrita**, *cursiva*, ## título, &gt; cita</span>
-                      <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.parentElement.previousElementSibling.value)`}>Guardar</button>
+                      <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.closest('.block-item').querySelector('.md-editor').value)`}>Guardar</button>
                     </div>
                   </div>
                 )}
@@ -209,6 +212,30 @@ for (const block of allBlocks) {
 </AdminLayout>
 
 <script define:vars={{ pageSlug: page.slug, pageId: page.id, sectionsData: sections.map(s => ({ id: s.id, order_index: s.order_index })) }}>
+  // ── Markdown preview ─────────────────────────────────────────────
+  // Lazy-load marked from CDN only when needed (admin-only script)
+  let markedReady = null;
+  async function getMarked() {
+    if (!markedReady) {
+      markedReady = import('https://cdn.jsdelivr.net/npm/marked@12/src/marked.esm.js')
+        .then(m => m.marked);
+    }
+    return markedReady;
+  }
+
+  window.updateMdPreview = async function(textarea) {
+    const preview = textarea.closest('div').nextElementSibling ??
+                    textarea.parentElement.querySelector('.md-preview');
+    if (!preview) return;
+    const marked = await getMarked();
+    preview.innerHTML = marked(textarea.value);
+  };
+
+  // Init previews for existing blocks on page load
+  document.querySelectorAll('.md-editor').forEach(ta => {
+    if (ta.value) updateMdPreview(ta);
+  });
+
   // ── Page metadata ──────────────────────────────────────────────
   document.getElementById('page-meta-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -241,9 +268,57 @@ for (const block of allBlocks) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ page_id: pageId, title, slug }),
     });
-    if (res.ok) location.reload();
-    else { const t = await res.text(); showToast(t || 'Error', false); }
+    if (!res.ok) { const t = await res.text(); showToast(t || 'Error', false); return; }
+    const sec = await res.json();
+    sectionsData.push({ id: sec.id, order_index: sec.order_index });
+    const newIdx = sectionsData.length - 1;
+    const container = document.getElementById('new-section-form').closest('.card').previousElementSibling.previousElementSibling;
+    // Insert before the "nueva sección" card
+    const newCard = document.createElement('div');
+    newCard.className = 'card section-card';
+    newCard.dataset.sectionId = sec.id;
+    newCard.style.cssText = 'border-left:3px solid var(--amarillo);margin-bottom:0.75rem;';
+    newCard.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;">
+          <span style="font-size:0.75rem;color:var(--muted);font-weight:700;min-width:1.5rem;">#${newIdx + 1}</span>
+          <input type="text" value="${sec.title.replace(/"/g,'&quot;')}" class="section-title-input"
+            data-section-id="${sec.id}"
+            style="font-weight:600;font-size:0.95rem;border:1px solid transparent;border-radius:4px;padding:0.3rem 0.5rem;background:transparent;flex:1;min-width:0;color:var(--text);"
+            onfocus="this.style.borderColor='var(--azul)';this.style.background='var(--surface)';"
+            onblur="this.style.borderColor='transparent';this.style.background='transparent';saveSection(${sec.id},{title:this.value})" />
+          <span class="block-count" style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">0 bloques</span>
+        </div>
+        <div style="display:flex;gap:0.3rem;margin-left:0.5rem;flex-shrink:0;">
+          <button class="btn btn-secondary btn-sm" onclick="moveSec(${newIdx},-1)" title="Subir">↑</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleSection(${sec.id})" data-toggle="${sec.id}" title="Colapsar">▾</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSection(${sec.id})">✕</button>
+        </div>
+      </div>
+      <div id="sec-body-${sec.id}" style="margin-top:0.875rem;">
+        <div id="blocks-${sec.id}"></div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.75rem;border-top:1px dashed var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);align-self:center;font-weight:600;">Añadir:</span>
+          <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'heading')">📌 Encabezado</button>
+          <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'text')">✍ Texto</button>
+          <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'image')">🖼 Imagen</button>
+          <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'video')">▶ Video</button>
+        </div>
+      </div>`;
+    const newSecCard = document.getElementById('new-section-form').closest('.card');
+    newSecCard.parentElement.insertBefore(newCard, newSecCard);
+    document.getElementById('new-sec-title').value = '';
+    document.getElementById('new-sec-slug').value = '';
+    showToast('Sección creada');
+    refreshSectionNumbers();
   });
+
+  function refreshSectionNumbers() {
+    document.querySelectorAll('.section-card').forEach((card, i) => {
+      const numEl = card.querySelector('span[style*="min-width:1.5rem"]');
+      if (numEl) numEl.textContent = `#${i + 1}`;
+    });
+  }
 
   // ── Section toggle ───────────────────────────────────────────────
   window.toggleSection = function(id) {
@@ -271,22 +346,112 @@ for (const block of allBlocks) {
       fetch(`/api/admin/sections/${a.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: b.order_index }) }),
       fetch(`/api/admin/sections/${b.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: a.order_index }) }),
     ]);
-    location.reload();
+    // Swap DOM elements
+    const cards = [...document.querySelectorAll('.section-card')];
+    const cardA = cards[idx], cardB = cards[target];
+    if (!cardA || !cardB) return;
+    const parent = cardA.parentElement;
+    const sibA = cardA.nextSibling;
+    parent.insertBefore(cardA, target > idx ? cardB.nextSibling : cardB);
+    parent.insertBefore(cardB, sibA);
+    // Swap sectionsData
+    [sectionsData[idx], sectionsData[target]] = [sectionsData[target], sectionsData[idx]];
+    refreshSectionNumbers();
+    showToast('Orden guardado');
   }
 
   window.deleteSection = async function(id) {
     if (!confirm('¿Eliminar sección y todo su contenido?')) return;
     const res = await fetch(`/api/admin/sections/${id}`, { method: 'DELETE' });
-    res.ok ? location.reload() : showToast('Error al eliminar', false);
+    if (!res.ok) { showToast('Error al eliminar', false); return; }
+    const card = document.querySelector(`.section-card[data-section-id="${id}"]`);
+    card?.remove();
+    const dIdx = sectionsData.findIndex(s => s.id === id);
+    if (dIdx > -1) sectionsData.splice(dIdx, 1);
+    refreshSectionNumbers();
+    showToast('Sección eliminada');
   }
 
   // ── Blocks ──────────────────────────────────────────────────────
+  function buildBlockHTML(block) {
+    const typeColors = {
+      heading: 'background:#78350f;color:#fde68a;',
+      text:    'background:#0c4a6e;color:#bae6fd;',
+      image:   'background:#14532d;color:#86efac;',
+      video:   'background:#4c1d95;color:#ddd6fe;',
+    };
+    const color = typeColors[block.type] || '';
+    let editor = '';
+    if (block.type === 'heading') {
+      editor = `<div style="display:flex;gap:0.5rem;">
+        <input type="text" value="${(block.content||'').replace(/"/g,'&quot;')}" data-block-id="${block.id}" class="block-input" placeholder="Título del encabezado" style="flex:1;" />
+        <button class="btn btn-primary btn-sm" onclick="saveBlkContent(${block.id},this.previousElementSibling.value)">Guardar</button>
+      </div>`;
+    } else if (block.type === 'text') {
+      editor = `<div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <textarea data-block-id="${block.id}" class="block-input md-editor" style="width:100%;min-height:120px;font-family:monospace;font-size:0.82rem;line-height:1.5;" oninput="updateMdPreview(this)">${block.content||''}</textarea>
+          <div class="md-preview" style="min-height:120px;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;">
+          <span style="font-size:0.72rem;color:var(--muted);">Markdown: **negrita**, *cursiva*, ## título, &gt; cita</span>
+          <button class="btn btn-primary btn-sm" onclick="saveBlkContent(${block.id},this.closest('.block-item').querySelector('.md-editor').value)">Guardar</button>
+        </div>
+      </div>`;
+    } else if (block.type === 'image') {
+      editor = `<div>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <input type="file" accept="image/*" data-block-id="${block.id}" class="img-input" style="flex:1;font-size:0.85rem;" />
+          <button class="btn btn-primary btn-sm" onclick="uploadImg(${block.id},this.previousElementSibling)">Subir</button>
+        </div>
+      </div>`;
+    } else if (block.type === 'video') {
+      editor = `<div style="display:flex;gap:0.5rem;">
+        <input type="text" value="${(block.content||'').replace(/"/g,'&quot;')}" data-block-id="${block.id}" class="block-input" placeholder="https://youtube.com/watch?v=..." style="flex:1;font-size:0.875rem;" />
+        <button class="btn btn-primary btn-sm" onclick="saveBlkContent(${block.id},this.previousElementSibling.value)">Guardar</button>
+      </div>`;
+    }
+    return `<div class="block-item" data-block-id="${block.id}" style="border:1px solid var(--border);border-radius:6px;padding:0.875rem;margin-bottom:0.6rem;background:var(--surface);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+        <span style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.15rem 0.5rem;border-radius:3px;${color}">${block.type}</span>
+        <div style="display:flex;gap:0.3rem;">
+          <button class="btn btn-secondary btn-sm" onclick="moveBlk(${block.id},${block.section_id},-1)">↑</button>
+          <button class="btn btn-secondary btn-sm" onclick="moveBlk(${block.id},${block.section_id},1)">↓</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBlock(${block.id})">✕</button>
+        </div>
+      </div>
+      ${editor}
+    </div>`;
+  }
+
+  function refreshBlockUpDownButtons(container) {
+    const items = [...container.querySelectorAll('.block-item')];
+    items.forEach((item, i) => {
+      const btns = item.querySelectorAll('button.btn-secondary');
+      // ↑ button: disable if first
+      if (btns[0]) btns[0].style.opacity = i === 0 ? '0.3' : '';
+      // ↓ button: disable if last
+      if (btns[1]) btns[1].style.opacity = i === items.length - 1 ? '0.3' : '';
+    });
+  }
+
   window.addBlock = async function(pgId, secId, type) {
     const res = await fetch('/api/admin/blocks', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ page_id: pgId, section_id: secId, type, content: '' }),
     });
-    res.ok ? location.reload() : showToast('Error', false);
+    if (!res.ok) { showToast('Error', false); return; }
+    const block = await res.json();
+    const container = document.getElementById(`blocks-${secId}`);
+    container.insertAdjacentHTML('beforeend', buildBlockHTML(block));
+    // Update block count badge
+    const card = document.querySelector(`.section-card[data-section-id="${secId}"]`);
+    const badge = card?.querySelector('.block-count');
+    if (badge) {
+      const n = container.querySelectorAll('.block-item').length;
+      badge.textContent = `${n} bloque${n !== 1 ? 's' : ''}`;
+    }
+    showToast('Bloque añadido');
   }
 
   window.saveBlkContent = async function(id, content) {
@@ -300,7 +465,20 @@ for (const block of allBlocks) {
   window.deleteBlock = async function(id) {
     if (!confirm('¿Eliminar este bloque?')) return;
     const res = await fetch(`/api/admin/blocks/${id}`, { method: 'DELETE' });
-    res.ok ? location.reload() : showToast('Error al eliminar', false);
+    if (!res.ok) { showToast('Error al eliminar', false); return; }
+    const item = document.querySelector(`.block-item[data-block-id="${id}"]`);
+    const container = item?.closest('[id^="blocks-"]');
+    item?.remove();
+    if (container) {
+      const secId = container.id.replace('blocks-', '');
+      const card = document.querySelector(`.section-card[data-section-id="${secId}"]`);
+      const badge = card?.querySelector('.block-count');
+      if (badge) {
+        const n = container.querySelectorAll('.block-item').length;
+        badge.textContent = `${n} bloque${n !== 1 ? 's' : ''}`;
+      }
+    }
+    showToast('Bloque eliminado');
   }
 
   window.moveBlk = async function(id, sectionId, dir) {
@@ -314,7 +492,13 @@ for (const block of allBlocks) {
       fetch(`/api/admin/blocks/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: target }) }),
       fetch(`/api/admin/blocks/${targetId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_index: idx }) }),
     ]);
-    location.reload();
+    // Swap DOM
+    const rowA = rows[idx], rowB = rows[target];
+    const parent = rowA.parentElement;
+    const sibA = rowA.nextSibling;
+    parent.insertBefore(rowA, target > idx ? rowB.nextSibling : rowB);
+    parent.insertBefore(rowB, sibA);
+    showToast('Orden guardado');
   }
 
   window.uploadImg = async function(blockId, input) {
@@ -322,10 +506,28 @@ for (const block of allBlocks) {
     const form = new FormData();
     form.append('file', input.files[0]);
     const up = await fetch('/api/admin/upload', { method: 'POST', body: form });
-    if (!up.ok) { showToast('Error al subir imagen', false); return; }
+    if (!up.ok) {
+      const msg = await up.text();
+      showToast(msg || 'Error al subir imagen', false);
+      return;
+    }
     const { key } = await up.json();
-    await saveBlkContent(blockId, key);
-    location.reload();
+    const saved = await fetch(`/api/admin/blocks/${blockId}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: key }),
+    });
+    if (!saved.ok) { showToast('Error al guardar imagen', false); return; }
+    // Update preview without reload
+    const item = document.querySelector(`.block-item[data-block-id="${blockId}"]`);
+    let img = item?.querySelector('img');
+    if (!img) {
+      img = document.createElement('img');
+      img.alt = '';
+      img.style.cssText = 'max-height:100px;border-radius:4px;margin-bottom:0.5rem;border:1px solid var(--border);';
+      item?.querySelector('div > div')?.prepend(img);
+    }
+    img.src = `/api/image/${key}`;
+    showToast('Imagen subida');
   }
 
   window.deletePage = async function() {

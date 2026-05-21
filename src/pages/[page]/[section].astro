@@ -18,9 +18,11 @@ const section = await env.DB.prepare('SELECT * FROM sections WHERE page_id=? AND
 if (!section) return new Response('Not Found', { status: 404 });
 
 const sectionsRes = await env.DB.prepare(
-  'SELECT * FROM sections WHERE page_id=? ORDER BY order_index'
+  'SELECT id, slug, title, order_index FROM sections WHERE page_id=? ORDER BY order_index'
 ).bind(page.id).all();
 const allSections: Section[] = sectionsRes.results ?? [];
+
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
 
 const blocksRes = await env.DB.prepare(
   'SELECT * FROM blocks WHERE section_id=? ORDER BY order_index'

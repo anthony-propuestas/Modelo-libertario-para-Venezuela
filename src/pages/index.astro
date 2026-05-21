@@ -9,6 +9,8 @@ try {
     pubPages = res.results ?? [];
   }
 } catch {}
+
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
 ---
 <Layout title="Inicio">
   <div style="max-width:760px;margin:0 auto;padding:3rem 2rem 2rem;">

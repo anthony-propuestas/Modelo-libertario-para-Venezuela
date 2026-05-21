@@ -17,6 +17,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!ALLOWED_EXTS.includes(ext)) {
     return new Response('Tipo de archivo no permitido', { status: 400 });
   }
+  if (file.size > 5 * 1024 * 1024) {
+    return new Response('El archivo supera el límite de 5MB', { status: 400 });
+  }
   const key = `images/${crypto.randomUUID()}.${ext}`;
   await env.BUCKET.put(key, await file.arrayBuffer(), {
     httpMetadata: { contentType: file.type },

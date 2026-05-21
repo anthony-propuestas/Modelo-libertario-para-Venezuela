@@ -30,7 +30,7 @@ export async function POST({ request, locals }: APIContext) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Contacto Venezuela Liberal <onboarding@resend.dev>',
+      from: `Contacto Venezuela Liberal <${env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
       to: ['anthony.propuestas@gmail.com'],
       subject: `Nuevo mensaje de ${name}`,
       html: `<p><strong>Nombre:</strong> ${name}</p><p><strong>Correo:</strong> ${email}</p><p><strong>Mensaje:</strong></p><p>${message.replace(/\n/g, '<br>')}</p>`,
