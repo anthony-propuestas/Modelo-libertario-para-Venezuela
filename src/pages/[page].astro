@@ -1,7 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Block from '../components/Block.astro';
-import SectionNav from '../components/SectionNav.astro';
 import type { Block as BlockType, Section } from '../lib/db';
 
 const { page: slug } = Astro.params;
@@ -31,37 +30,196 @@ for (const block of allBlocks) {
 }
 ---
 <Layout title={page.title} description={page.description ?? ''}>
-  <div style="max-width:760px;margin:0 auto;padding:2rem;">
-    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid #e5e5e5;">
-      <p style="font-size:0.8rem;color:#999;text-transform:uppercase;letter-spacing:0.08em;font-family:'Helvetica Neue',Arial,sans-serif;margin-bottom:0.5rem;">
-        <a href="/" style="color:#999;">Inicio</a> /
+  <div class="page-wrap">
+    <!-- Breadcrumb + title -->
+    <div class="page-header">
+      <p class="breadcrumb">
+        <a href="/">Inicio</a> /
       </p>
-      <h1 style="font-size:2rem;line-height:1.25;margin-bottom:0.5rem;">{page.title}</h1>
+      <h1 class="page-title">{page.title}</h1>
       {page.description && (
-        <p style="color:#666;font-size:1rem;font-family:'Helvetica Neue',Arial,sans-serif;margin:0;">{page.description}</p>
+        <p class="page-description">{page.description}</p>
       )}
     </div>
 
-    <SectionNav sections={sections} pageSlug={slug!} />
+    <!-- Inline TOC -->
+    {sections.length > 1 && (
+      <nav class="toc">
+        <p class="toc-label">Contenido</p>
+        <ol>
+          {sections.map(s => (
+            <li>
+              <a href={`#${s.slug}`} class="toc-link" data-opens={s.slug}>{s.title}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
 
-    {/* Page-level blocks (sin sección) */}
-    {(blocksBySection['_page'] ?? []).map(block => (
-      <Block block={block} />
-    ))}
-
-    {/* Secciones */}
-    {sections.map(section => (
-      <section id={section.slug} style="margin-top:3rem;padding-top:0.5rem;">
-        <h2 style="font-size:1.5rem;color:#CF8A00;font-family:'Georgia',serif;margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:1px solid #f0e0c0;">
-          {section.title}
-        </h2>
-        {(blocksBySection[String(section.id)] ?? []).map(block => (
+    <!-- Page-level blocks (no section) -->
+    {(blocksBySection['_page'] ?? []).length > 0 && (
+      <div class="page-blocks">
+        {(blocksBySection['_page'] ?? []).map(block => (
           <Block block={block} />
         ))}
-        {!(blocksBySection[String(section.id)]?.length) && (
-          <p style="color:#bbb;font-style:italic;font-size:0.875rem;">Contenido próximamente...</p>
-        )}
-      </section>
-    ))}
+      </div>
+    )}
+
+    <!-- Sections as accordion -->
+    <div class="sections-list">
+      {sections.map(section => (
+        <details id={section.slug} class="section-accordion">
+          <summary class="section-summary">
+            <span class="summary-title">{section.title}</span>
+            <span class="summary-chevron">↓</span>
+          </summary>
+          <div class="section-body">
+            {(blocksBySection[String(section.id)] ?? []).map(block => (
+              <Block block={block} />
+            ))}
+            {!(blocksBySection[String(section.id)]?.length) && (
+              <p class="empty-notice">Contenido próximamente...</p>
+            )}
+          </div>
+        </details>
+      ))}
+    </div>
   </div>
 </Layout>
+
+<style>
+  .page-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+  .page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .breadcrumb {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin-bottom: 0.5rem;
+  }
+  .breadcrumb a { color: var(--muted); }
+  .page-title {
+    font-size: 2rem;
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+  }
+  .page-description {
+    color: var(--muted);
+    font-size: 1rem;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amarillo);
+    border-radius: 0 6px 6px 0;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .toc-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  .toc ol { list-style: decimal; padding-left: 1.2rem; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc-link {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.9rem;
+    color: var(--azul);
+  }
+  .toc-link:hover { color: var(--rojo); }
+
+  .page-blocks { margin-bottom: 1.5rem; }
+
+  /* Accordion */
+  .sections-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .section-accordion {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .section-accordion[open] {
+    border-color: var(--amarillo);
+  }
+
+  .section-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    list-style: none;
+    font-family: 'Georgia', serif;
+    font-size: 1.2rem;
+    color: var(--amarillo);
+    background: var(--white);
+    user-select: none;
+    gap: 1rem;
+  }
+  .section-summary::-webkit-details-marker { display: none; }
+  .section-summary:hover { background: var(--surface); }
+
+  .summary-title { flex: 1; }
+
+  .summary-chevron {
+    font-size: 0.9rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+    display: inline-block;
+    line-height: 1;
+  }
+  .section-accordion[open] .summary-chevron {
+    transform: rotate(180deg);
+  }
+
+  .section-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .empty-notice {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.875rem;
+  }
+</style>
+
+<script>
+  // TOC anchor links open the target accordion
+  document.querySelectorAll<HTMLAnchorElement>('a[data-opens]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = a.dataset.opens!;
+      const el = document.getElementById(id) as HTMLDetailsElement | null;
+      if (el) {
+        el.open = true;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Auto-open section from URL hash on load
+  if (location.hash) {
+    const el = document.getElementById(location.hash.slice(1)) as HTMLDetailsElement | null;
+    if (el?.tagName === 'DETAILS') el.open = true;
+  }
+</script>

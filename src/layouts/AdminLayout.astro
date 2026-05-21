@@ -11,9 +11,24 @@ const { title } = Astro.props;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title} — Admin Venezuela Liberal</title>
   <link rel="icon" href="/favicon.svg" />
+  <script is:inline>
+    const t = localStorage.getItem('theme') || 'dark';
+    document.documentElement.dataset.theme = t;
+  </script>
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
+      --amarillo: #d4a017;
+      --azul: #5a8ef0;
+      --rojo: #e63950;
+      --text: #dde1ef;
+      --muted: #7c8099;
+      --border: #2d3048;
+      --bg: #111318;
+      --white: #1c1f2b;
+      --surface: #252836;
+    }
+    [data-theme="light"] {
       --amarillo: #CF8A00;
       --azul: #003DA5;
       --rojo: #CF142B;
@@ -22,14 +37,15 @@ const { title } = Astro.props;
       --border: #e0e0e0;
       --bg: #f4f4f5;
       --white: #fff;
+      --surface: #eaeaec;
     }
-    body { background: var(--bg); color: var(--text); font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.5; }
+    body { background: var(--bg); color: var(--text); font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.5; transition: background 0.2s, color 0.2s; }
     a { color: var(--azul); text-decoration: none; }
     a:hover { text-decoration: underline; color: var(--rojo); }
     input[type="text"], input[type="password"], input[type="email"], textarea, select {
       width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border);
       border-radius: 4px; font-size: 0.9rem; font-family: inherit; background: var(--white);
-      transition: border-color 0.15s;
+      color: var(--text); transition: border-color 0.15s;
     }
     input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
       outline: none; border-color: var(--azul);
@@ -41,20 +57,32 @@ const { title } = Astro.props;
       text-decoration: none; transition: background 0.15s;
     }
     .btn-primary { background: var(--azul); color: #fff; }
-    .btn-primary:hover { background: #002d7a; color: #fff; text-decoration: none; }
+    .btn-primary:hover { background: #3d6fd4; color: #fff; text-decoration: none; }
     .btn-danger { background: var(--rojo); color: #fff; }
-    .btn-danger:hover { background: #a8102a; color: #fff; text-decoration: none; }
-    .btn-secondary { background: #e5e5e7; color: var(--text); }
-    .btn-secondary:hover { background: #d0d0d3; color: var(--text); text-decoration: none; }
+    .btn-danger:hover { background: #c22038; color: #fff; text-decoration: none; }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); color: var(--text); text-decoration: none; }
     .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
     label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
     .field { margin-bottom: 1rem; }
     .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
     hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+    #theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 0.3rem 0.55rem;
+      color: var(--muted);
+      transition: border-color 0.15s, color 0.15s;
+      line-height: 1;
+    }
+    #theme-toggle:hover { border-color: var(--azul); color: var(--text); }
     #toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem;
       border-radius: 6px; font-size: 0.875rem; z-index: 9999;
-      display: none; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     #toast.show { display: block; }
   </style>
@@ -68,6 +96,7 @@ const { title } = Astro.props;
       <a href="/admin/pages" style="font-size:0.875rem;color:var(--muted);">Páginas</a>
     </div>
     <div style="display:flex;gap:1rem;align-items:center;">
+      <button id="theme-toggle" title="Cambiar tema">🌙</button>
       <a href="/" target="_blank" style="font-size:0.8rem;color:var(--muted);">Ver sitio →</a>
       <form action="/api/auth/logout" method="post" style="margin:0;">
         <button type="submit" class="btn btn-secondary btn-sm">Salir</button>
@@ -85,10 +114,20 @@ const { title } = Astro.props;
     (window as any).showToast = function(msg: string, ok = true) {
       const t = document.getElementById('toast')!;
       t.textContent = msg;
-      t.style.background = ok ? '#1a1a1a' : '#CF142B';
+      t.style.background = ok ? '#22c55e' : '#e63950';
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3000);
     };
+
+    const btn = document.getElementById('theme-toggle')!;
+    const root = document.documentElement;
+    btn.textContent = root.dataset.theme === 'dark' ? '☀' : '🌙';
+    btn.addEventListener('click', () => {
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      localStorage.setItem('theme', next);
+      btn.textContent = next === 'dark' ? '☀' : '🌙';
+    });
   </script>
 </body>
 </html>

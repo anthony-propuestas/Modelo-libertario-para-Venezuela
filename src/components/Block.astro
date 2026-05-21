@@ -47,35 +47,35 @@ const htmlContent = block.type === 'text' ? String(marked.parse(block.content)) 
 )}
 
 {block.type === 'video' && !embedUrl && block.content && (
-  <p style="color:#999;font-style:italic;font-size:0.875rem;">Video no disponible.</p>
+  <p style="color:var(--muted);font-style:italic;font-size:0.875rem;">Video no disponible.</p>
 )}
 
 <style>
   .block-heading {
     font-size: 1.45rem;
-    color: #CF8A00;
-    margin: 2.5rem 0 0.75rem;
+    color: var(--amarillo);
+    margin: 2rem 0 0.6rem;
     font-family: 'Georgia', serif;
     line-height: 1.3;
   }
-  .prose { margin: 1rem 0; }
+  .prose { margin: 0.75rem 0; }
   .prose :global(h1), .prose :global(h2), .prose :global(h3) { margin: 1.5rem 0 0.5rem; line-height: 1.3; }
   .prose :global(p) { margin-bottom: 1rem; }
   .prose :global(p:last-child) { margin-bottom: 0; }
   .prose :global(ul), .prose :global(ol) { margin: 0.75rem 0 1rem 1.5rem; }
   .prose :global(li) { margin-bottom: 0.3rem; }
   .prose :global(blockquote) {
-    border-left: 3px solid #CF8A00;
+    border-left: 3px solid var(--amarillo);
     padding-left: 1rem;
     margin: 1.25rem 0;
-    color: #555;
+    color: var(--muted);
     font-style: italic;
   }
-  .prose :global(a) { color: #003DA5; }
+  .prose :global(a) { color: var(--azul); }
   .prose :global(strong) { font-weight: 700; }
   .prose :global(em) { font-style: italic; }
-  .prose :global(code) { background: #f2f2f2; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.875em; font-family: monospace; }
-  .block-image { margin: 1.5rem 0; }
+  .prose :global(code) { background: var(--surface); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.875em; font-family: monospace; }
+  .block-image { margin: 1.25rem 0; }
   .block-image img { border-radius: 4px; max-width: 100%; }
   .block-video {
     position: relative;
