@@ -1,0 +1,84 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Contacto">
+  <div style="max-width:600px;margin:0 auto;padding:3rem 2rem 2rem;">
+    <h1 style="font-size:2rem;margin-bottom:0.5rem;">Contacto</h1>
+    <p style="color:var(--muted);font-family:'Helvetica Neue',Arial,sans-serif;margin-bottom:2rem;">
+      Escríbeme un mensaje y te responderé a la brevedad.
+    </p>
+
+    <form id="contact-form" style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <label for="name" style="font-size:0.85rem;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--muted);">Nombre</label>
+        <input id="name" name="name" type="text" required
+          style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.65rem 0.9rem;color:var(--text);font-size:1rem;outline:none;transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='var(--azul)'" onblur="this.style.borderColor='var(--border)'" />
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <label for="email" style="font-size:0.85rem;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--muted);">Tu correo</label>
+        <input id="email" name="email" type="email" required
+          style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.65rem 0.9rem;color:var(--text);font-size:1rem;outline:none;transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='var(--azul)'" onblur="this.style.borderColor='var(--border)'" />
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <label for="message" style="font-size:0.85rem;font-family:'Helvetica Neue',Arial,sans-serif;color:var(--muted);">Mensaje</label>
+        <textarea id="message" name="message" rows="6" required
+          style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.65rem 0.9rem;color:var(--text);font-size:1rem;outline:none;resize:vertical;font-family:inherit;transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='var(--azul)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      </div>
+
+      <button type="submit" id="submit-btn"
+        style="align-self:flex-start;background:var(--azul);color:#fff;border:none;border-radius:6px;padding:0.7rem 1.8rem;font-size:0.95rem;font-family:'Helvetica Neue',Arial,sans-serif;cursor:pointer;transition:opacity 0.15s;">
+        Enviar mensaje
+      </button>
+
+      <p id="status-msg" style="display:none;font-family:'Helvetica Neue',Arial,sans-serif;font-size:0.9rem;margin:0;"></p>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('contact-form') as HTMLFormElement;
+    const btn = document.getElementById('submit-btn') as HTMLButtonElement;
+    const status = document.getElementById('status-msg') as HTMLParagraphElement;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      status.style.display = 'none';
+
+      const data = {
+        name: (document.getElementById('name') as HTMLInputElement).value,
+        email: (document.getElementById('email') as HTMLInputElement).value,
+        message: (document.getElementById('message') as HTMLTextAreaElement).value,
+      };
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) {
+          form.reset();
+          status.textContent = 'Mensaje enviado. Te responderé pronto.';
+          status.style.color = 'var(--azul)';
+        } else {
+          const body = await res.json() as any;
+          status.textContent = body?.error ?? 'Ocurrió un error. Intenta de nuevo.';
+          status.style.color = 'var(--rojo)';
+        }
+      } catch {
+        status.textContent = 'Error de conexión. Intenta de nuevo.';
+        status.style.color = 'var(--rojo)';
+      }
+
+      status.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Enviar mensaje';
+    });
+  </script>
+</Layout>
