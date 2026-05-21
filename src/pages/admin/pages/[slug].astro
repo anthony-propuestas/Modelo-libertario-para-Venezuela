@@ -243,14 +243,14 @@ for (const block of allBlocks) {
   });
 
   // ── Sections ────────────────────────────────────────────────────
-  async function saveSection(id, fields) {
+  window.saveSection = async function(id, fields) {
     await fetch(`/api/admin/sections/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fields),
     });
   }
 
-  async function moveSec(idx, dir) {
+  window.moveSec = async function(idx, dir) {
     const target = idx + dir;
     if (target < 0 || target >= sectionsData.length) return;
     const [a, b] = [sectionsData[idx], sectionsData[target]];
@@ -261,14 +261,14 @@ for (const block of allBlocks) {
     location.reload();
   }
 
-  async function deleteSection(id) {
+  window.deleteSection = async function(id) {
     if (!confirm('¿Eliminar sección y todo su contenido?')) return;
     const res = await fetch(`/api/admin/sections/${id}`, { method: 'DELETE' });
     res.ok ? location.reload() : showToast('Error al eliminar', false);
   }
 
   // ── Blocks ──────────────────────────────────────────────────────
-  async function addBlock(pgId, secId, type) {
+  window.addBlock = async function(pgId, secId, type) {
     const res = await fetch('/api/admin/blocks', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ page_id: pgId, section_id: secId, type, content: '' }),
@@ -276,7 +276,7 @@ for (const block of allBlocks) {
     res.ok ? location.reload() : showToast('Error', false);
   }
 
-  async function saveBlkContent(id, content) {
+  window.saveBlkContent = async function(id, content) {
     const res = await fetch(`/api/admin/blocks/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),
@@ -284,13 +284,13 @@ for (const block of allBlocks) {
     res.ok ? showToast('Guardado') : showToast('Error al guardar', false);
   }
 
-  async function deleteBlock(id) {
+  window.deleteBlock = async function(id) {
     if (!confirm('¿Eliminar este bloque?')) return;
     const res = await fetch(`/api/admin/blocks/${id}`, { method: 'DELETE' });
     res.ok ? location.reload() : showToast('Error al eliminar', false);
   }
 
-  async function moveBlk(id, sectionId, dir) {
+  window.moveBlk = async function(id, sectionId, dir) {
     const container = document.getElementById(`blocks-${sectionId}`);
     const rows = [...container.querySelectorAll('.block-item')];
     const idx = rows.findIndex(r => r.dataset.blockId == id);
@@ -304,7 +304,7 @@ for (const block of allBlocks) {
     location.reload();
   }
 
-  async function uploadImg(blockId, input) {
+  window.uploadImg = async function(blockId, input) {
     if (!input.files?.[0]) { showToast('Selecciona un archivo', false); return; }
     const form = new FormData();
     form.append('file', input.files[0]);
@@ -315,7 +315,7 @@ for (const block of allBlocks) {
     location.reload();
   }
 
-  async function deletePage() {
+  window.deletePage = async function() {
     if (!confirm(`¿Eliminar la página "${pageSlug}" y todo su contenido? Esta acción no se puede deshacer.`)) return;
     const res = await fetch(`/api/admin/pages/${pageSlug}`, { method: 'DELETE' });
     if (res.ok) window.location.href = '/admin/pages';
