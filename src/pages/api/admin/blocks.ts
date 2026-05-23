@@ -17,7 +17,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!page_id || !type) {
     return new Response('page_id y type son requeridos', { status: 400 });
   }
-  const validTypes = ['heading', 'text', 'image', 'video'];
+  const validTypes = ['heading', 'text', 'image', 'video', 'table'];
   if (!validTypes.includes(type)) {
     return new Response('Tipo inválido', { status: 400 });
   }
