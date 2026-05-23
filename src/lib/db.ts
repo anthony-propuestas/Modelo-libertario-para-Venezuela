@@ -20,7 +20,7 @@ export interface Block {
   id: number;
   page_id: number;
   section_id: number | null;
-  type: 'heading' | 'text' | 'image' | 'video';
+  type: 'heading' | 'text' | 'image' | 'video' | 'table';
   content: string;
   order_index: number;
   created_at: string;

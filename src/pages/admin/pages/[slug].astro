@@ -120,6 +120,10 @@ for (const block of allBlocks) {
         <div id={`blocks-${section.id}`}>
           {(blocksBySection[String(section.id)] ?? []).map((block, bi) => {
             const sectionBlocks = blocksBySection[String(section.id)] ?? [];
+            let tData: { headers: string[]; rows: string[][] } = { headers: ['Columna 1', 'Columna 2'], rows: [] };
+            if (block.type === 'table' && block.content) {
+              try { tData = JSON.parse(block.content); } catch {}
+            }
             return (
               <div class="block-item" data-block-id={block.id} style="border:1px solid var(--border);border-radius:6px;padding:0.875rem;margin-bottom:0.6rem;background:var(--surface);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
@@ -127,6 +131,7 @@ for (const block of allBlocks) {
                     block.type === 'heading' ? 'background:#78350f;color:#fde68a;' :
                     block.type === 'text' ? 'background:#0c4a6e;color:#bae6fd;' :
                     block.type === 'image' ? 'background:#14532d;color:#86efac;' :
+                    block.type === 'table' ? 'background:#1e3a5f;color:#93c5fd;' :
                     'background:#4c1d95;color:#ddd6fe;'
                   }`}>{block.type}</span>
                   <div style="display:flex;gap:0.3rem;">
@@ -173,6 +178,48 @@ for (const block of allBlocks) {
                     <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.previousElementSibling.value)`}>Guardar</button>
                   </div>
                 )}
+
+                {block.type === 'table' && (
+                  <div class="table-editor" data-block-id={block.id}>
+                    <div style="overflow-x:auto;margin-bottom:0.5rem;">
+                      <table style="border-collapse:collapse;width:100%;font-size:0.85rem;">
+                        <thead>
+                          <tr>
+                            {tData.headers.map((h, ci) => (
+                              <th style="border:1px solid var(--border);padding:0;">
+                                <input type="text" class="tbl-cell" data-role="header" data-col={String(ci)}
+                                  value={h} style="width:100%;background:transparent;border:0;padding:0.35rem 0.5rem;font-weight:600;color:var(--text);box-sizing:border-box;" />
+                              </th>
+                            ))}
+                            <th style="border:1px solid var(--border);padding:0.25rem;white-space:nowrap;background:var(--surface);text-align:center;">
+                              <button class="btn btn-secondary btn-sm" onclick={`addTableCol(${block.id})`} title="Añadir columna">+C</button>
+                              <button class="btn btn-danger btn-sm" onclick={`removeTableCol(${block.id})`} title="Quitar columna">-C</button>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tData.rows.map((row, ri) => (
+                            <tr>
+                              {row.map((cell, ci) => (
+                                <td style="border:1px solid var(--border);padding:0;">
+                                  <input type="text" class="tbl-cell" data-role="cell" data-row={String(ri)} data-col={String(ci)}
+                                    value={cell} style="width:100%;background:transparent;border:0;padding:0.35rem 0.5rem;color:var(--text);box-sizing:border-box;" />
+                                </td>
+                              ))}
+                              <td style="border:1px solid var(--border);padding:0.25rem;text-align:center;background:var(--surface);">
+                                <button class="btn btn-danger btn-sm" onclick={`removeTableRow(${block.id},this)`} title="Eliminar fila">✕</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem;">
+                      <button class="btn btn-secondary btn-sm" onclick={`addTableRow(${block.id})`}>+ Fila</button>
+                      <button class="btn btn-primary btn-sm" onclick={`saveTableData(${block.id})`}>Guardar tabla</button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -181,9 +228,9 @@ for (const block of allBlocks) {
         <!-- Add block buttons -->
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.75rem;border-top:1px dashed var(--border);">
           <span style="font-size:0.75rem;color:var(--muted);align-self:center;font-weight:600;">Añadir:</span>
-          {(['heading', 'text', 'image', 'video'] as const).map(t => (
+          {(['heading', 'text', 'image', 'video', 'table'] as const).map(t => (
             <button class="btn btn-secondary btn-sm" onclick={`addBlock(${page.id},${section.id},'${t}')`}>
-              {t === 'heading' ? '📌 Encabezado' : t === 'text' ? '✍ Texto' : t === 'image' ? '🖼 Imagen' : '▶ Video'}
+              {t === 'heading' ? '📌 Encabezado' : t === 'text' ? '✍ Texto' : t === 'image' ? '🖼 Imagen' : t === 'video' ? '▶ Video' : '📊 Tabla'}
             </button>
           ))}
         </div>
@@ -301,6 +348,7 @@ for (const block of allBlocks) {
           <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'text')">✍ Texto</button>
           <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'image')">🖼 Imagen</button>
           <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'video')">▶ Video</button>
+          <button class="btn btn-secondary btn-sm" onclick="addBlock(${pageId},${sec.id},'table')">📊 Tabla</button>
         </div>
       </div>`;
     const newSecCard = document.getElementById('new-section-form').closest('.card');
@@ -377,6 +425,7 @@ for (const block of allBlocks) {
       text:    'background:#0c4a6e;color:#bae6fd;',
       image:   'background:#14532d;color:#86efac;',
       video:   'background:#4c1d95;color:#ddd6fe;',
+      table:   'background:#1e3a5f;color:#93c5fd;',
     };
     const color = typeColors[block.type] || '';
     let editor = '';
@@ -406,6 +455,36 @@ for (const block of allBlocks) {
       editor = `<div style="display:flex;gap:0.5rem;">
         <input type="text" value="${(block.content||'').replace(/"/g,'&quot;')}" data-block-id="${block.id}" class="block-input" placeholder="https://youtube.com/watch?v=..." style="flex:1;font-size:1rem;" />
         <button class="btn btn-primary btn-sm" onclick="saveBlkContent(${block.id},this.previousElementSibling.value)">Guardar</button>
+      </div>`;
+    } else if (block.type === 'table') {
+      let tData = { headers: ['Columna 1', 'Columna 2'], rows: [] };
+      try { if (block.content) tData = JSON.parse(block.content); } catch {}
+      const headerCols = tData.headers.map((h, ci) =>
+        `<th style="border:1px solid var(--border);padding:0;"><input type="text" class="tbl-cell" data-role="header" data-col="${ci}" value="${String(h).replace(/"/g,'&quot;')}" style="width:100%;background:transparent;border:0;padding:0.35rem 0.5rem;font-weight:600;color:var(--text);box-sizing:border-box;" /></th>`
+      ).join('');
+      const bodyRows = tData.rows.map((row, ri) => {
+        const cells = row.map((cell, ci) =>
+          `<td style="border:1px solid var(--border);padding:0;"><input type="text" class="tbl-cell" data-role="cell" data-row="${ri}" data-col="${ci}" value="${String(cell).replace(/"/g,'&quot;')}" style="width:100%;background:transparent;border:0;padding:0.35rem 0.5rem;color:var(--text);box-sizing:border-box;" /></td>`
+        ).join('');
+        return `<tr>${cells}<td style="border:1px solid var(--border);padding:0.25rem;text-align:center;background:var(--surface);"><button class="btn btn-danger btn-sm" onclick="removeTableRow(${block.id},this)" title="Eliminar fila">✕</button></td></tr>`;
+      }).join('');
+      editor = `<div class="table-editor" data-block-id="${block.id}">
+        <div style="overflow-x:auto;margin-bottom:0.5rem;">
+          <table style="border-collapse:collapse;width:100%;font-size:0.85rem;">
+            <thead><tr>
+              ${headerCols}
+              <th style="border:1px solid var(--border);padding:0.25rem;white-space:nowrap;background:var(--surface);text-align:center;">
+                <button class="btn btn-secondary btn-sm" onclick="addTableCol(${block.id})" title="Añadir columna">+C</button>
+                <button class="btn btn-danger btn-sm" onclick="removeTableCol(${block.id})" title="Quitar columna">-C</button>
+              </th>
+            </tr></thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem;">
+          <button class="btn btn-secondary btn-sm" onclick="addTableRow(${block.id})">+ Fila</button>
+          <button class="btn btn-primary btn-sm" onclick="saveTableData(${block.id})">Guardar tabla</button>
+        </div>
       </div>`;
     }
     return `<div class="block-item" data-block-id="${block.id}" style="border:1px solid var(--border);border-radius:6px;padding:0.875rem;margin-bottom:0.6rem;background:var(--surface);">
@@ -526,6 +605,69 @@ for (const block of allBlocks) {
     img.src = `/api/image/${key}`;
     showToast('Imagen subida');
   }
+
+  // ── Table blocks ─────────────────────────────────────────────────
+  window.addTableRow = function(blockId) {
+    const editor = document.querySelector(`.table-editor[data-block-id="${blockId}"]`);
+    const tbody = editor.querySelector('tbody');
+    const colCount = editor.querySelectorAll('thead tr th:not(:last-child)').length;
+    const rowCount = tbody.querySelectorAll('tr').length;
+    const tr = document.createElement('tr');
+    for (let c = 0; c < colCount; c++) {
+      const td = document.createElement('td');
+      td.style.cssText = 'border:1px solid var(--border);padding:0;';
+      td.innerHTML = `<input type="text" class="tbl-cell" data-role="cell" data-row="${rowCount}" data-col="${c}" value="" style="width:100%;background:transparent;border:0;padding:0.35rem 0.5rem;color:var(--text);box-sizing:border-box;" />`;
+      tr.appendChild(td);
+    }
+    const ctd = document.createElement('td');
+    ctd.style.cssText = 'border:1px solid var(--border);padding:0.25rem;text-align:center;background:var(--surface);';
+    ctd.innerHTML = `<button class="btn btn-danger btn-sm" onclick="removeTableRow(${blockId},this)" title="Eliminar fila">✕</button>`;
+    tr.appendChild(ctd);
+    tbody.appendChild(tr);
+  };
+
+  window.removeTableRow = function(blockId, btn) {
+    btn.closest('tr')?.remove();
+  };
+
+  window.addTableCol = function(blockId) {
+    const editor = document.querySelector(`.table-editor[data-block-id="${blockId}"]`);
+    const theadRow = editor.querySelector('thead tr');
+    const tbody = editor.querySelector('tbody');
+    const colCount = theadRow.querySelectorAll('th:not(:last-child)').length;
+    const th = document.createElement('th');
+    th.style.cssText = 'border:1px solid var(--border);padding:0;';
+    th.innerHTML = `<input type="text" class="tbl-cell" data-role="header" data-col="${colCount}" value="Columna ${colCount + 1}" style="width:100%;background:transparent;border:0;padding:0.35rem 0.5rem;font-weight:600;color:var(--text);box-sizing:border-box;" />`;
+    theadRow.insertBefore(th, theadRow.lastElementChild);
+    tbody.querySelectorAll('tr').forEach((row, ri) => {
+      const td = document.createElement('td');
+      td.style.cssText = 'border:1px solid var(--border);padding:0;';
+      td.innerHTML = `<input type="text" class="tbl-cell" data-role="cell" data-row="${ri}" data-col="${colCount}" value="" style="width:100%;background:transparent;border:0;padding:0.35rem 0.5rem;color:var(--text);box-sizing:border-box;" />`;
+      row.insertBefore(td, row.lastElementChild);
+    });
+  };
+
+  window.removeTableCol = function(blockId) {
+    const editor = document.querySelector(`.table-editor[data-block-id="${blockId}"]`);
+    const theadRow = editor.querySelector('thead tr');
+    const tbody = editor.querySelector('tbody');
+    const ths = [...theadRow.querySelectorAll('th:not(:last-child)')];
+    if (ths.length <= 1) return;
+    ths[ths.length - 1].remove();
+    tbody.querySelectorAll('tr').forEach(row => {
+      const tds = [...row.querySelectorAll('td:not(:last-child)')];
+      if (tds.length > 0) tds[tds.length - 1].remove();
+    });
+  };
+
+  window.saveTableData = function(blockId) {
+    const editor = document.querySelector(`.table-editor[data-block-id="${blockId}"]`);
+    const headers = [...editor.querySelectorAll('thead .tbl-cell')].map(i => i.value);
+    const rows = [...editor.querySelectorAll('tbody tr')].map(row =>
+      [...row.querySelectorAll('.tbl-cell')].map(i => i.value)
+    );
+    saveBlkContent(blockId, JSON.stringify({ headers, rows }));
+  };
 
   window.deletePage = async function() {
     if (!confirm(`¿Eliminar la página "${pageSlug}" y todo su contenido? Esta acción no se puede deshacer.`)) return;
