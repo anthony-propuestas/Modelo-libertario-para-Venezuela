@@ -145,9 +145,8 @@ for (const block of allBlocks) {
 
                 {block.type === 'text' && (
                   <div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-                      <textarea data-block-id={block.id} class="block-input md-editor" style="width:100%;min-height:280px;font-family:monospace;font-size:0.9rem;line-height:1.6;" oninput={`updateMdPreview(this)`}>{block.content}</textarea>
-                      <div class="md-preview" style="min-height:280px;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:4px;font-size:0.9rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
+                    <div>
+                      <textarea data-block-id={block.id} class="block-input md-editor" style="width:100%;min-height:280px;font-family:monospace;font-size:0.9rem;line-height:1.6;">{block.content}</textarea>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;">
                       <span style="font-size:0.72rem;color:var(--muted);">Markdown: **negrita**, *cursiva*, ## título, &gt; cita</span>
@@ -224,8 +223,7 @@ for (const block of allBlocks) {
   }
 
   window.updateMdPreview = async function(textarea) {
-    const preview = textarea.closest('div').nextElementSibling ??
-                    textarea.parentElement.querySelector('.md-preview');
+    const preview = textarea.parentElement.querySelector('.md-preview');
     if (!preview) return;
     const marked = await getMarked();
     preview.innerHTML = marked(textarea.value);
@@ -389,9 +387,8 @@ for (const block of allBlocks) {
       </div>`;
     } else if (block.type === 'text') {
       editor = `<div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-          <textarea data-block-id="${block.id}" class="block-input md-editor" style="width:100%;min-height:280px;font-family:monospace;font-size:0.9rem;line-height:1.6;" oninput="updateMdPreview(this)">${block.content||''}</textarea>
-          <div class="md-preview" style="min-height:280px;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:4px;font-size:0.9rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
+        <div>
+          <textarea data-block-id="${block.id}" class="block-input md-editor" style="width:100%;min-height:280px;font-family:monospace;font-size:0.9rem;line-height:1.6;">${block.content||''}</textarea>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;">
           <span style="font-size:0.72rem;color:var(--muted);">Markdown: **negrita**, *cursiva*, ## título, &gt; cita</span>
