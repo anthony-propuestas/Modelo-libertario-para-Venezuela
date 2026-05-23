@@ -98,7 +98,7 @@ for (const block of allBlocks) {
             value={section.title}
             class="section-title-input"
             data-section-id={section.id}
-            style="font-weight:600;font-size:0.95rem;border:1px solid transparent;border-radius:4px;padding:0.3rem 0.5rem;background:transparent;flex:1;min-width:0;color:var(--text);"
+            style="font-weight:600;font-size:1rem;border:1px solid transparent;border-radius:4px;padding:0.5rem 0.75rem;background:transparent;flex:1;min-width:0;color:var(--text);"
             onfocus="this.style.borderColor='var(--azul)';this.style.background='var(--surface)';"
             onblur={`this.style.borderColor='transparent';this.style.background='transparent';saveSection(${section.id},{title:this.value})`}
           />
@@ -138,7 +138,7 @@ for (const block of allBlocks) {
 
                 {block.type === 'heading' && (
                   <div style="display:flex;gap:0.5rem;">
-                    <input type="text" value={block.content} data-block-id={block.id} class="block-input" placeholder="Título del encabezado" style="flex:1;" />
+                    <input type="text" value={block.content} data-block-id={block.id} class="block-input" placeholder="Título del encabezado" style="flex:1;font-size:1rem;" />
                     <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.previousElementSibling.value)`}>Guardar</button>
                   </div>
                 )}
@@ -146,8 +146,8 @@ for (const block of allBlocks) {
                 {block.type === 'text' && (
                   <div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-                      <textarea data-block-id={block.id} class="block-input md-editor" style="width:100%;min-height:120px;font-family:monospace;font-size:0.82rem;line-height:1.5;" oninput={`updateMdPreview(this)`}>{block.content}</textarea>
-                      <div class="md-preview" style="min-height:120px;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
+                      <textarea data-block-id={block.id} class="block-input md-editor" style="width:100%;min-height:280px;font-family:monospace;font-size:0.9rem;line-height:1.6;" oninput={`updateMdPreview(this)`}>{block.content}</textarea>
+                      <div class="md-preview" style="min-height:280px;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:4px;font-size:0.9rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;">
                       <span style="font-size:0.72rem;color:var(--muted);">Markdown: **negrita**, *cursiva*, ## título, &gt; cita</span>
@@ -170,7 +170,7 @@ for (const block of allBlocks) {
 
                 {block.type === 'video' && (
                   <div style="display:flex;gap:0.5rem;">
-                    <input type="text" value={block.content} data-block-id={block.id} class="block-input" placeholder="https://youtube.com/watch?v=..." style="flex:1;font-size:0.875rem;" />
+                    <input type="text" value={block.content} data-block-id={block.id} class="block-input" placeholder="https://youtube.com/watch?v=..." style="flex:1;font-size:1rem;" />
                     <button class="btn btn-primary btn-sm" onclick={`saveBlkContent(${block.id},this.previousElementSibling.value)`}>Guardar</button>
                   </div>
                 )}
@@ -284,7 +284,7 @@ for (const block of allBlocks) {
           <span style="font-size:0.75rem;color:var(--muted);font-weight:700;min-width:1.5rem;">#${newIdx + 1}</span>
           <input type="text" value="${sec.title.replace(/"/g,'&quot;')}" class="section-title-input"
             data-section-id="${sec.id}"
-            style="font-weight:600;font-size:0.95rem;border:1px solid transparent;border-radius:4px;padding:0.3rem 0.5rem;background:transparent;flex:1;min-width:0;color:var(--text);"
+            style="font-weight:600;font-size:1rem;border:1px solid transparent;border-radius:4px;padding:0.5rem 0.75rem;background:transparent;flex:1;min-width:0;color:var(--text);"
             onfocus="this.style.borderColor='var(--azul)';this.style.background='var(--surface)';"
             onblur="this.style.borderColor='transparent';this.style.background='transparent';saveSection(${sec.id},{title:this.value})" />
           <span class="block-count" style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">0 bloques</span>
@@ -384,14 +384,14 @@ for (const block of allBlocks) {
     let editor = '';
     if (block.type === 'heading') {
       editor = `<div style="display:flex;gap:0.5rem;">
-        <input type="text" value="${(block.content||'').replace(/"/g,'&quot;')}" data-block-id="${block.id}" class="block-input" placeholder="Título del encabezado" style="flex:1;" />
+        <input type="text" value="${(block.content||'').replace(/"/g,'&quot;')}" data-block-id="${block.id}" class="block-input" placeholder="Título del encabezado" style="flex:1;font-size:1rem;" />
         <button class="btn btn-primary btn-sm" onclick="saveBlkContent(${block.id},this.previousElementSibling.value)">Guardar</button>
       </div>`;
     } else if (block.type === 'text') {
       editor = `<div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-          <textarea data-block-id="${block.id}" class="block-input md-editor" style="width:100%;min-height:120px;font-family:monospace;font-size:0.82rem;line-height:1.5;" oninput="updateMdPreview(this)">${block.content||''}</textarea>
-          <div class="md-preview" style="min-height:120px;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:4px;font-size:0.85rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
+          <textarea data-block-id="${block.id}" class="block-input md-editor" style="width:100%;min-height:280px;font-family:monospace;font-size:0.9rem;line-height:1.6;" oninput="updateMdPreview(this)">${block.content||''}</textarea>
+          <div class="md-preview" style="min-height:280px;padding:0.7rem 1rem;border:1px solid var(--border);border-radius:4px;font-size:0.9rem;line-height:1.6;overflow:auto;background:var(--bg);"></div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;">
           <span style="font-size:0.72rem;color:var(--muted);">Markdown: **negrita**, *cursiva*, ## título, &gt; cita</span>
@@ -407,7 +407,7 @@ for (const block of allBlocks) {
       </div>`;
     } else if (block.type === 'video') {
       editor = `<div style="display:flex;gap:0.5rem;">
-        <input type="text" value="${(block.content||'').replace(/"/g,'&quot;')}" data-block-id="${block.id}" class="block-input" placeholder="https://youtube.com/watch?v=..." style="flex:1;font-size:0.875rem;" />
+        <input type="text" value="${(block.content||'').replace(/"/g,'&quot;')}" data-block-id="${block.id}" class="block-input" placeholder="https://youtube.com/watch?v=..." style="flex:1;font-size:1rem;" />
         <button class="btn btn-primary btn-sm" onclick="saveBlkContent(${block.id},this.previousElementSibling.value)">Guardar</button>
       </div>`;
     }
