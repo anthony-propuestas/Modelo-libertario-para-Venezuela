@@ -1,6 +1,6 @@
 # Modelo Liberal para Venezuela
 
-Blog político estático construido con Astro, desplegado en Cloudflare Pages, con base de datos D1 (SQLite) y almacenamiento de imágenes en R2.
+Blog político estático construido con Astro, desplegado en Cloudflare Pages, con base de datos D1 (SQLite) y almacenamiento de imágenes en R2.si
 
 ## Stack
 
