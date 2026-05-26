@@ -1,126 +1,104 @@
 ---
+import Layout from '../layouts/Layout.astro';
 ---
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mercadismo Activo — Manifiesto</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<Layout title="Mercadismo Activo — Manifiesto">
 <style>
-:root {
-  --ink: #0f0e0c;
-  --ink-muted: #4a4740;
-  --ink-faint: #9a958e;
-  --paper: #f7f4ef;
-  --paper-warm: #ede9e1;
-  --accent: #b5341a;
-  --accent-light: #f0e8e5;
-  --gold: #c4922a;
-  --rule: #d4cfc7;
-  --col-w: 680px;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.75; }
-body { max-width: var(--col-w); margin: 0 auto; padding: 3rem 2rem 6rem; }
+*, *::before, *::after { box-sizing: border-box; }
+
+.page-wrap { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
 
 /* HEADER */
-.masthead { text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 2rem; margin-bottom: 3rem; }
-.masthead-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 1.5rem; display: block; }
-h1 { font-family: 'Playfair Display', serif; font-size: clamp(42px, 8vw, 72px); font-weight: 900; line-height: 1.0; color: var(--ink); margin-bottom: .5rem; }
-.h1-sub { font-family: 'Playfair Display', serif; font-size: clamp(16px, 3vw, 22px); font-style: italic; font-weight: 400; color: var(--ink-muted); margin-bottom: 1.5rem; }
-.masthead-meta { display: flex; justify-content: center; gap: 2rem; font-size: 12px; color: var(--ink-faint); font-family: 'DM Mono', monospace; }
-.red-rule { width: 48px; height: 3px; background: var(--accent); margin: 1.5rem auto; }
+.masthead { text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 2rem; margin-bottom: 3rem; }
+.masthead-label { font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; display: block; }
+h1 { font-family: Georgia, serif; font-size: clamp(42px, 8vw, 72px); font-weight: 900; line-height: 1.0; color: var(--text); margin-bottom: .5rem; }
+.h1-sub { font-family: Georgia, serif; font-size: clamp(16px, 3vw, 22px); font-style: italic; font-weight: 400; color: var(--muted); margin-bottom: 1.5rem; }
+.masthead-meta { display: flex; justify-content: center; gap: 2rem; font-size: 12px; color: var(--muted); font-family: 'Courier New', monospace; flex-wrap: wrap; }
+.red-rule { width: 48px; height: 3px; background: var(--rojo); margin: 1.5rem auto; }
 
 /* DROPCAP */
 .dropcap::first-letter {
-  font-family: 'Playfair Display', serif;
+  font-family: Georgia, serif;
   font-size: 5.5rem;
   font-weight: 900;
   float: left;
   line-height: .78;
   margin: .1em .15em -.05em 0;
-  color: var(--accent);
+  color: var(--rojo);
 }
 
 /* SECTIONS */
 section { margin-bottom: 3.5rem; }
-.section-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: .15em; text-transform: uppercase; display: block; margin-bottom: .4rem; }
-h2 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--ink); margin-bottom: 1rem; line-height: 1.25; }
-h3 { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; color: var(--ink); margin-bottom: .6rem; line-height: 1.3; }
-p { color: var(--ink-muted); margin-bottom: 1rem; font-size: 15px; line-height: 1.8; }
-p strong { color: var(--ink); font-weight: 500; }
-hr.thin { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+.section-num { font-family: 'Courier New', monospace; font-size: 10px; color: var(--rojo); letter-spacing: .15em; text-transform: uppercase; display: block; margin-bottom: .4rem; }
+h2 { font-family: Georgia, serif; font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 1rem; line-height: 1.25; }
+h3 { font-family: Georgia, serif; font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: .6rem; line-height: 1.3; }
+p { color: var(--muted); margin-bottom: 1rem; font-size: 15px; line-height: 1.8; }
+p strong { color: var(--text); font-weight: 500; }
+hr.thin { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 
 /* PULLQUOTE */
-.pullquote { border-left: 4px solid var(--accent); padding: 1rem 1.5rem; margin: 2rem 0; background: var(--accent-light); border-radius: 0 4px 4px 0; }
-.pullquote p { font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic; color: var(--ink); margin: 0; line-height: 1.6; }
-.pullquote cite { display: block; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-muted); margin-top: .75rem; letter-spacing: .06em; }
+.pullquote { border-left: 4px solid var(--rojo); padding: 1rem 1.5rem; margin: 2rem 0; background: var(--surface); border-radius: 0 4px 4px 0; }
+.pullquote p { font-family: Georgia, serif; font-size: 18px; font-style: italic; color: var(--text); margin: 0; line-height: 1.6; }
+.pullquote cite { display: block; font-family: 'Courier New', monospace; font-size: 11px; color: var(--muted); margin-top: .75rem; letter-spacing: .06em; }
 
-/* AXIOM BOX */
-.axiom { background: var(--ink); color: var(--paper); padding: 2rem 2rem; margin: 2.5rem 0; text-align: center; }
-.axiom p { font-family: 'Playfair Display', serif; font-size: 20px; font-style: italic; color: var(--paper); margin: 0; line-height: 1.6; }
-.axiom .axiom-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: .75rem; }
+/* AXIOM BOX — invertido: siempre contrasta con el fondo */
+.axiom { background: var(--text); color: var(--bg); padding: 2rem; margin: 2.5rem 0; text-align: center; }
+.axiom p { font-family: Georgia, serif; font-size: 20px; font-style: italic; color: var(--bg); margin: 0; line-height: 1.6; }
+.axiom .axiom-label { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--amarillo); display: block; margin-bottom: .75rem; }
 
 /* PILLARS */
-.pillars { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 1.5rem 0; }
-.pillar { background: var(--paper); padding: 1.25rem 1rem; }
-.pillar-n { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; color: var(--rule); line-height: 1; margin-bottom: .4rem; }
-.pillar h4 { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: .3rem; }
-.pillar p { font-size: 12px; color: var(--ink-muted); margin: 0; line-height: 1.55; }
+.pillars { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 1.5rem 0; }
+.pillar { background: var(--white); padding: 1.25rem 1rem; }
+.pillar-n { font-family: Georgia, serif; font-size: 36px; font-weight: 900; color: var(--border); line-height: 1; margin-bottom: .4rem; }
+.pillar h4 { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: .3rem; }
+.pillar p { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.55; }
 
 /* CRITERIA CARDS */
 .criteria-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 1.5rem 0; }
-.criterion { border: 1px solid var(--rule); padding: 1.5rem; position: relative; }
+.criterion { border: 1px solid var(--border); padding: 1.5rem; position: relative; background: var(--white); }
 .criterion::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
-.criterion.funcional::before { background: var(--accent); }
-.criterion.coercion::before { background: var(--gold); }
-.criterion.pragmatico::before { background: var(--ink-muted); }
-.criterion-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; margin-bottom: .5rem; display: block; }
-.criterion.funcional .criterion-tag { color: var(--accent); }
-.criterion.coercion .criterion-tag { color: var(--gold); }
-.criterion.pragmatico .criterion-tag { color: var(--ink-muted); }
+.criterion.funcional::before { background: var(--rojo); }
+.criterion.coercion::before { background: var(--amarillo); }
+.criterion.pragmatico::before { background: var(--muted); }
+.criterion-tag { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; margin-bottom: .5rem; display: block; }
+.criterion.funcional .criterion-tag { color: var(--rojo); }
+.criterion.coercion .criterion-tag { color: var(--amarillo); }
+.criterion.pragmatico .criterion-tag { color: var(--muted); }
 .criterion h3 { font-size: 17px; margin-bottom: .5rem; }
 .criterion p { font-size: 14px; margin-bottom: .75rem; }
-.criterion .rule-box { background: var(--paper-warm); padding: .75rem 1rem; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink); line-height: 1.6; }
-.criterion .rule-box strong { color: var(--accent); }
+.criterion .rule-box { background: var(--surface); padding: .75rem 1rem; font-family: 'Courier New', monospace; font-size: 12px; color: var(--text); line-height: 1.6; }
+.criterion .rule-box strong { color: var(--rojo); }
 
 /* LIMITS TABLE */
 .limits { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 13px; }
-.limits th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); border-bottom: 2px solid var(--ink); padding: .75rem .5rem; text-align: left; }
-.limits td { padding: .75rem .5rem; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-muted); line-height: 1.55; }
-.limits td:first-child { font-weight: 500; color: var(--ink); font-size: 13px; }
+.limits th { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--text); padding: .75rem .5rem; text-align: left; }
+.limits td { padding: .75rem .5rem; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--muted); line-height: 1.55; }
+.limits td:first-child { font-weight: 500; color: var(--text); font-size: 13px; }
 .limits tr:last-child td { border-bottom: none; }
-.tag-yes { background: #e6f4ea; color: #2d6a34; padding: 2px 8px; font-size: 11px; font-family: 'DM Mono', monospace; white-space: nowrap; }
-.tag-no { background: #fdecea; color: #922; padding: 2px 8px; font-size: 11px; font-family: 'DM Mono', monospace; white-space: nowrap; }
-.tag-cond { background: #fff8e6; color: #7a5a00; padding: 2px 8px; font-size: 11px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+.tag-yes { background: var(--surface); color: var(--amarillo); outline: 1px solid var(--amarillo); padding: 2px 8px; font-size: 11px; font-family: 'Courier New', monospace; white-space: nowrap; }
+.tag-no { background: var(--surface); color: var(--rojo); outline: 1px solid var(--rojo); padding: 2px 8px; font-size: 11px; font-family: 'Courier New', monospace; white-space: nowrap; }
+.tag-cond { background: var(--surface); color: var(--muted); outline: 1px solid var(--border); padding: 2px 8px; font-size: 11px; font-family: 'Courier New', monospace; white-space: nowrap; }
 
 /* SYSTEM DIAGRAM */
 .system { margin: 2rem 0; }
 .sys-row { display: flex; align-items: stretch; gap: 0; margin-bottom: 1px; }
-.sys-label { width: 140px; flex-shrink: 0; background: var(--ink); color: var(--paper); padding: .875rem 1rem; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .06em; display: flex; align-items: center; }
-.sys-content { flex: 1; background: var(--paper-warm); border: 1px solid var(--rule); border-left: none; padding: .875rem 1rem; font-size: 13px; color: var(--ink-muted); display: flex; align-items: center; }
-.sys-content strong { color: var(--ink); }
+.sys-label { width: 140px; flex-shrink: 0; background: var(--text); color: var(--bg); padding: .875rem 1rem; font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: .06em; display: flex; align-items: center; }
+.sys-content { flex: 1; background: var(--surface); border: 1px solid var(--border); border-left: none; padding: .875rem 1rem; font-size: 13px; color: var(--muted); display: flex; align-items: center; }
+.sys-content strong { color: var(--text); }
 
 /* STEPS */
 .steps { counter-reset: step; margin: 1.5rem 0; }
 .step { display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start; }
-.step-num { counter-increment: step; width: 28px; height: 28px; background: var(--accent); color: white; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-num { counter-increment: step; width: 28px; height: 28px; background: var(--rojo); color: white; font-family: Georgia, serif; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .step-body { flex: 1; }
-.step-body h4 { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: .25rem; }
-.step-body p { font-size: 13px; margin: 0; color: var(--ink-muted); line-height: 1.6; }
+.step-body h4 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: .25rem; }
+.step-body p { font-size: 13px; margin: 0; color: var(--muted); line-height: 1.6; }
 
 /* FORMULA */
-.formula { font-family: 'DM Mono', monospace; font-size: 13px; background: var(--paper-warm); border: 1px solid var(--rule); padding: 1.25rem 1.5rem; margin: 1.5rem 0; line-height: 2; color: var(--ink); text-align: center; }
-.formula .f-label { font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-muted); display: block; margin-bottom: .5rem; }
-
-/* FOOTER */
-footer { border-top: 2px solid var(--ink); padding-top: 1.5rem; margin-top: 4rem; display: flex; justify-content: space-between; align-items: flex-end; }
-.footer-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
-.footer-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-muted); text-align: right; line-height: 1.8; }
+.formula { font-family: 'Courier New', monospace; font-size: 13px; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem 1.5rem; margin: 1.5rem 0; line-height: 2; color: var(--text); text-align: center; }
+.formula .f-label { font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: .5rem; }
 </style>
-</head>
-<body>
+
+<div class="page-wrap">
 
 <div class="masthead">
   <span class="masthead-label">Teoría económica · Primera edición · 2025</span>
@@ -201,7 +179,7 @@ footer { border-top: 2px solid var(--ink); padding-top: 1.5rem; margin-top: 4rem
   <div class="formula">
     <span class="f-label">Ecuación del sistema</span>
     Bienestar = Σ(Recursos mercadizados) × Competencia × Acceso ciudadano al capital<br>
-    <span style="font-size:11px;color:#9a958e">donde Competencia → ∞ y Acceso → universal</span>
+    <span style="font-size:11px;color:var(--muted)">donde Competencia → ∞ y Acceso → universal</span>
   </div>
 
   <h3>El proceso de subasta popular — paso a paso</h3>
@@ -384,7 +362,7 @@ footer { border-top: 2px solid var(--ink); padding-top: 1.5rem; margin-top: 4rem
       <div class="sys-content">Registrar propiedad — Mantener el registro público de quién posee qué, base de todo intercambio</div>
     </div>
     <div class="sys-row">
-      <div class="sys-label" style="background:#922">NO HACE</div>
+      <div class="sys-label" style="background:var(--rojo);color:white">NO HACE</div>
       <div class="sys-content">Regular precios, subsidiar empresas, operar servicios, elegir "ganadores" industriales ni impedir la entrada de competidores</div>
     </div>
   </div>
@@ -398,12 +376,12 @@ footer { border-top: 2px solid var(--ink); padding-top: 1.5rem; margin-top: 4rem
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0">
     <div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:.75rem">Liberalismo clásico / Milei</div>
-      <div style="font-size:13px;color:var(--ink-muted);line-height:2">→ Reducir el estado<br>→ Eliminar lo público<br>→ Postura <em>reactiva</em><br>→ El mercado aparece solo<br>→ Enfocado en la destrucción del monopolio</div>
+      <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Liberalismo clásico / Milei</div>
+      <div style="font-size:13px;color:var(--muted);line-height:2">→ Reducir el estado<br>→ Eliminar lo público<br>→ Postura <em>reactiva</em><br>→ El mercado aparece solo<br>→ Enfocado en la destrucción del monopolio</div>
     </div>
-    <div style="border-left:3px solid var(--accent);padding-left:1.5rem">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem">Mercadismo Activo</div>
-      <div style="font-size:13px;color:var(--ink-muted);line-height:2">→ Generar empresas nuevas<br>→ Privatizar con propiedad popular<br>→ Postura <em>generativa</em><br>→ El mercado se construye activamente<br>→ Enfocado en la creación de competencia</div>
+    <div style="border-left:3px solid var(--rojo);padding-left:1.5rem">
+      <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--rojo);margin-bottom:.75rem">Mercadismo Activo</div>
+      <div style="font-size:13px;color:var(--muted);line-height:2">→ Generar empresas nuevas<br>→ Privatizar con propiedad popular<br>→ Postura <em>generativa</em><br>→ El mercado se construye activamente<br>→ Enfocado en la creación de competencia</div>
     </div>
   </div>
 
@@ -423,14 +401,5 @@ footer { border-top: 2px solid var(--ink); padding-top: 1.5rem; margin-top: 4rem
   </div>
 </section>
 
-<footer>
-  <div class="footer-title">Mercadismo Activo</div>
-  <div class="footer-meta">
-    Primera edición · 2025<br>
-    Teoría económica en desarrollo<br>
-    Dominio público — citar con atribución
-  </div>
-</footer>
-
-</body>
-</html>
+</div>
+</Layout>
