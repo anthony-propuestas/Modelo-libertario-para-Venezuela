@@ -1,0 +1,436 @@
+---
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercadismo Activo — Manifiesto</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0e0c;
+  --ink-muted: #4a4740;
+  --ink-faint: #9a958e;
+  --paper: #f7f4ef;
+  --paper-warm: #ede9e1;
+  --accent: #b5341a;
+  --accent-light: #f0e8e5;
+  --gold: #c4922a;
+  --rule: #d4cfc7;
+  --col-w: 680px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.75; }
+body { max-width: var(--col-w); margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+/* HEADER */
+.masthead { text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 2rem; margin-bottom: 3rem; }
+.masthead-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 1.5rem; display: block; }
+h1 { font-family: 'Playfair Display', serif; font-size: clamp(42px, 8vw, 72px); font-weight: 900; line-height: 1.0; color: var(--ink); margin-bottom: .5rem; }
+.h1-sub { font-family: 'Playfair Display', serif; font-size: clamp(16px, 3vw, 22px); font-style: italic; font-weight: 400; color: var(--ink-muted); margin-bottom: 1.5rem; }
+.masthead-meta { display: flex; justify-content: center; gap: 2rem; font-size: 12px; color: var(--ink-faint); font-family: 'DM Mono', monospace; }
+.red-rule { width: 48px; height: 3px; background: var(--accent); margin: 1.5rem auto; }
+
+/* DROPCAP */
+.dropcap::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 5.5rem;
+  font-weight: 900;
+  float: left;
+  line-height: .78;
+  margin: .1em .15em -.05em 0;
+  color: var(--accent);
+}
+
+/* SECTIONS */
+section { margin-bottom: 3.5rem; }
+.section-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: .15em; text-transform: uppercase; display: block; margin-bottom: .4rem; }
+h2 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--ink); margin-bottom: 1rem; line-height: 1.25; }
+h3 { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; color: var(--ink); margin-bottom: .6rem; line-height: 1.3; }
+p { color: var(--ink-muted); margin-bottom: 1rem; font-size: 15px; line-height: 1.8; }
+p strong { color: var(--ink); font-weight: 500; }
+hr.thin { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+
+/* PULLQUOTE */
+.pullquote { border-left: 4px solid var(--accent); padding: 1rem 1.5rem; margin: 2rem 0; background: var(--accent-light); border-radius: 0 4px 4px 0; }
+.pullquote p { font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic; color: var(--ink); margin: 0; line-height: 1.6; }
+.pullquote cite { display: block; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-muted); margin-top: .75rem; letter-spacing: .06em; }
+
+/* AXIOM BOX */
+.axiom { background: var(--ink); color: var(--paper); padding: 2rem 2rem; margin: 2.5rem 0; text-align: center; }
+.axiom p { font-family: 'Playfair Display', serif; font-size: 20px; font-style: italic; color: var(--paper); margin: 0; line-height: 1.6; }
+.axiom .axiom-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: .75rem; }
+
+/* PILLARS */
+.pillars { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 1.5rem 0; }
+.pillar { background: var(--paper); padding: 1.25rem 1rem; }
+.pillar-n { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; color: var(--rule); line-height: 1; margin-bottom: .4rem; }
+.pillar h4 { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: .3rem; }
+.pillar p { font-size: 12px; color: var(--ink-muted); margin: 0; line-height: 1.55; }
+
+/* CRITERIA CARDS */
+.criteria-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+.criterion { border: 1px solid var(--rule); padding: 1.5rem; position: relative; }
+.criterion::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+.criterion.funcional::before { background: var(--accent); }
+.criterion.coercion::before { background: var(--gold); }
+.criterion.pragmatico::before { background: var(--ink-muted); }
+.criterion-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; margin-bottom: .5rem; display: block; }
+.criterion.funcional .criterion-tag { color: var(--accent); }
+.criterion.coercion .criterion-tag { color: var(--gold); }
+.criterion.pragmatico .criterion-tag { color: var(--ink-muted); }
+.criterion h3 { font-size: 17px; margin-bottom: .5rem; }
+.criterion p { font-size: 14px; margin-bottom: .75rem; }
+.criterion .rule-box { background: var(--paper-warm); padding: .75rem 1rem; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink); line-height: 1.6; }
+.criterion .rule-box strong { color: var(--accent); }
+
+/* LIMITS TABLE */
+.limits { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 13px; }
+.limits th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); border-bottom: 2px solid var(--ink); padding: .75rem .5rem; text-align: left; }
+.limits td { padding: .75rem .5rem; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-muted); line-height: 1.55; }
+.limits td:first-child { font-weight: 500; color: var(--ink); font-size: 13px; }
+.limits tr:last-child td { border-bottom: none; }
+.tag-yes { background: #e6f4ea; color: #2d6a34; padding: 2px 8px; font-size: 11px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+.tag-no { background: #fdecea; color: #922; padding: 2px 8px; font-size: 11px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+.tag-cond { background: #fff8e6; color: #7a5a00; padding: 2px 8px; font-size: 11px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+
+/* SYSTEM DIAGRAM */
+.system { margin: 2rem 0; }
+.sys-row { display: flex; align-items: stretch; gap: 0; margin-bottom: 1px; }
+.sys-label { width: 140px; flex-shrink: 0; background: var(--ink); color: var(--paper); padding: .875rem 1rem; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .06em; display: flex; align-items: center; }
+.sys-content { flex: 1; background: var(--paper-warm); border: 1px solid var(--rule); border-left: none; padding: .875rem 1rem; font-size: 13px; color: var(--ink-muted); display: flex; align-items: center; }
+.sys-content strong { color: var(--ink); }
+
+/* STEPS */
+.steps { counter-reset: step; margin: 1.5rem 0; }
+.step { display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start; }
+.step-num { counter-increment: step; width: 28px; height: 28px; background: var(--accent); color: white; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-body { flex: 1; }
+.step-body h4 { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: .25rem; }
+.step-body p { font-size: 13px; margin: 0; color: var(--ink-muted); line-height: 1.6; }
+
+/* FORMULA */
+.formula { font-family: 'DM Mono', monospace; font-size: 13px; background: var(--paper-warm); border: 1px solid var(--rule); padding: 1.25rem 1.5rem; margin: 1.5rem 0; line-height: 2; color: var(--ink); text-align: center; }
+.formula .f-label { font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-muted); display: block; margin-bottom: .5rem; }
+
+/* FOOTER */
+footer { border-top: 2px solid var(--ink); padding-top: 1.5rem; margin-top: 4rem; display: flex; justify-content: space-between; align-items: flex-end; }
+.footer-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+.footer-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-muted); text-align: right; line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <span class="masthead-label">Teoría económica · Primera edición · 2025</span>
+  <h1>Mercadismo<br>Activo</h1>
+  <div class="h1-sub">Un manifiesto para la generación de mercados libres</div>
+  <div class="red-rule"></div>
+  <div class="masthead-meta">
+    <span>Propiedad privada universal</span>
+    <span>·</span>
+    <span>Competencia real</span>
+    <span>·</span>
+    <span>Sin coerción</span>
+  </div>
+</div>
+
+<!-- DECLARACIÓN -->
+<section>
+  <span class="section-num">§ 00 — Declaración</span>
+  <h2>El mercado no aparece solo.<br>Hay que construirlo.</h2>
+  <p class="dropcap">El liberalismo clásico tiene razón en su diagnóstico: el estado es ineficiente, la burocracia destruye valor, la coerción viola la dignidad humana. Pero se equivoca en su estrategia: reducir el estado sin construir mercados en su lugar no es libertad — es vacío. El Mercadismo Activo parte de donde el liberalismo termina.</p>
+  <p>Este manifiesto propone un sistema económico que no solo <em>defiende</em> el mercado libre, sino que lo <em>genera activamente</em> — convirtiendo cada recurso subutilizado, cada monopolio estatal y cada vacío burocrático en una empresa de propiedad distribuida, accesible para cualquier ciudadano desde un peso.</p>
+
+  <div class="axiom">
+    <span class="axiom-label">Axioma central</span>
+    <p>"Todo recurso subutilizado es una empresa que aún no existe. El Mercadismo Activo es el sistema para crearla."</p>
+  </div>
+</section>
+
+<!-- PILARES -->
+<section>
+  <span class="section-num">§ 01 — Fundamentos filosóficos</span>
+  <h2>Los tres pilares inviolables</h2>
+  <p>El Mercadismo Activo se construye sobre tres principios que no admiten excepciones ni negociación política. Son pre-condiciones del sistema, no resultados de él.</p>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-n">I</div>
+      <h4>Propiedad privada</h4>
+      <p>Todo recurso debe tener un dueño identificable. Lo que nadie posee, nadie cuida. La propiedad es el fundamento del incentivo correcto.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-n">II</div>
+      <h4>No agresión</h4>
+      <p>Ninguna transacción es válida si fue forzada. Todo intercambio — incluida la compra de acciones o el pago por un servicio — debe ser voluntario.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-n">III</div>
+      <h4>Libertad efectiva</h4>
+      <p>La libertad sin acceso económico es formal. Las acciones desde $1 convierten la libertad abstracta en participación real en el capital.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SISTEMA CENTRAL -->
+<section>
+  <span class="section-num">§ 02 — Diseño del sistema central</span>
+  <h2>La arquitectura del modelo</h2>
+  <p>El sistema opera en cuatro capas que se autorefuerzan. Cada capa depende de la anterior y genera las condiciones para la siguiente.</p>
+
+  <div class="system">
+    <div class="sys-row">
+      <div class="sys-label">CAPA 1<br>Detección</div>
+      <div class="sys-content"><strong>Identificación de vacíos:</strong> Cualquier ciudadano, empresa o gobierno puede proponer un recurso para mercadización — un parque, una frecuencia de radio, una ruta, un río navegable. El criterio es simple: ¿hay valor potencial sin apropiación privada?</div>
+    </div>
+    <div class="sys-row">
+      <div class="sys-label">CAPA 2<br>Subasta</div>
+      <div class="sys-content"><strong>Proceso público abierto:</strong> El recurso se licita mediante subasta pública auditada (preferiblemente blockchain). Cualquier grupo puede participar. El estado no evalúa "méritos" — solo garantiza que el proceso sea visible y libre de coerción.</div>
+    </div>
+    <div class="sys-row">
+      <div class="sys-label">CAPA 3<br>Empresa</div>
+      <div class="sys-content"><strong>Constitución de S.A. popular:</strong> El ganador constituye una sociedad anónima con acciones cotizadas públicamente. Mínimo de acciones disponibles para el público general desde $1. La empresa opera con total autonomía — fija precios, contrata, decide su modelo.</div>
+    </div>
+    <div class="sys-row">
+      <div class="sys-label">CAPA 4<br>Competencia</div>
+      <div class="sys-content"><strong>Apertura permanente:</strong> Cualquier competidor puede licitar el mismo recurso o crear alternativas. No hay barreras de entrada regulatorias. Si una empresa cobra demasiado, el mercado genera un rival. El estado solo garantiza que no existan monopolios forzados.</div>
+    </div>
+  </div>
+
+  <div class="formula">
+    <span class="f-label">Ecuación del sistema</span>
+    Bienestar = Σ(Recursos mercadizados) × Competencia × Acceso ciudadano al capital<br>
+    <span style="font-size:11px;color:#9a958e">donde Competencia → ∞ y Acceso → universal</span>
+  </div>
+
+  <h3>El proceso de subasta popular — paso a paso</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Registro del recurso</h4><p>Se documenta el recurso, su estado actual, su potencial de valor y el territorio que abarca. Registro público e inmutable.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Ventana de propuestas</h4><p>60 días para que cualquier grupo presente un plan de negocio. El plan incluye estructura accionaria propuesta y precio de oferta.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Subasta abierta</h4><p>Proceso de puja pública. El estado no elige al "mejor" — elige al que más ofrece con al menos un competidor. Sin monopolio sin competencia.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Constitución y oferta pública</h4><p>La empresa ganadora emite acciones públicas. Mínimo 30% del capital debe estar disponible para compra pública desde $1 por acción.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Operación libre</h4><p>La empresa opera sin regulación de precios. El único control es la competencia: si otra empresa puede hacerlo mejor, que entre.</p></div></div>
+  </div>
+</section>
+
+<!-- CRITERIOS DE MERCADIZACIÓN -->
+<section>
+  <span class="section-num">§ 03 — Los tres criterios de mercadización</span>
+  <h2>¿Qué se puede mercadizar y qué no?</h2>
+  <p>Este es el problema central que cualquier teoría liberal debe resolver. El Mercadismo Activo ofrece tres criterios complementarios. Un recurso es mercadizable si supera al menos uno de los tres.</p>
+
+  <div class="criteria-grid">
+    <div class="criterion funcional">
+      <span class="criterion-tag">Criterio I — Funcional</span>
+      <h3>¿Puede haber competidores reales?</h3>
+      <p>Si dos o más empresas pueden proveer el mismo servicio o recurso simultáneamente, sin que la existencia de una impida físicamente a la otra, el recurso es mercadizable por criterio funcional.</p>
+      <p>El criterio funcional es el más permisivo: cubre casi todo. Parques, agua, electricidad, rutas, internet, hospitales, educación. En todos estos sectores la competencia técnica es posible aunque históricamente se haya bloqueado con regulación.</p>
+      <div class="rule-box"><strong>Regla:</strong> Si la única barrera a la competencia es una ley o concesión estatal preexistente — no una restricción física real — el recurso es mercadizable. La barrera fue artificial; el mercado puede operar.</div>
+    </div>
+
+    <div class="criterion coercion">
+      <span class="criterion-tag">Criterio II — Coerción</span>
+      <h3>¿El servicio requiere monopolio de la fuerza?</h3>
+      <p>Este criterio define el límite principal del modelo. Algunos servicios requieren por su naturaleza el uso legítimo de la coerción — es decir, la capacidad de obligar a terceros a cumplir decisiones aunque no las hayan aceptado. Estos servicios no pueden mercadizarse porque su eficacia depende de ser únicos.</p>
+      <p>Un ejército privado compite con otro ejército privado — y el resultado es guerra civil. Un sistema judicial privado compite con otro — y el resultado es que cada parte elige el juez que le conviene. El monopolio del uso de la fuerza, en estos casos específicos, no es una falla del mercado: es una precondición de la paz.</p>
+      <div class="rule-box">
+        <strong>No mercadizables por criterio de coerción:</strong><br>
+        — Defensa nacional y fuerzas militares<br>
+        — Sistema judicial y poder coercitivo de sentencias<br>
+        — Emisión de moneda de curso legal (base monetaria)<br>
+        — Registro oficial de contratos y propiedad<br><br>
+        <strong>Sí mercadizables aunque parezcan coercitivos:</strong><br>
+        — Seguridad privada (complementaria, no sustituta)<br>
+        — Arbitraje privado (voluntario, no impuesto)<br>
+        — Monedas privadas (en paralelo, no sustituyendo la base)
+      </div>
+    </div>
+
+    <div class="criterion pragmatico">
+      <span class="criterion-tag">Criterio III — Pragmático</span>
+      <h3>¿Alguien está dispuesto a comprarlo?</h3>
+      <p>El criterio pragmático es el más simple y el más honesto: si ninguna empresa quiere licitar un recurso en subasta pública, el recurso no genera valor suficiente para cubrir el costo de operarlo. Y si no genera valor, forzar su existencia mediante subsidio estatal es destruir riqueza.</p>
+      <p>Este criterio no elimina la posibilidad de error: un recurso puede no tener licitadores hoy porque la regulación lo hace inviable. En ese caso, el problema no es el recurso — es la regulación. Quitada la regulación, el mercado revela el valor real.</p>
+      <div class="rule-box">
+        <strong>Protocolo si no hay licitadores:</strong><br>
+        1. Revisar si existe regulación que bloquea la rentabilidad<br>
+        2. Eliminar esa regulación y relicitar<br>
+        3. Si aún no hay licitadores: el recurso no justifica existencia organizada<br>
+        4. Registrar el recurso como "libre de apropiación" — cualquier actor puede tomarlo después sin subasta
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LÍMITES LÓGICOS -->
+<section>
+  <span class="section-num">§ 04 — Límites lógicos a la mercadización</span>
+  <h2>Lo que el mercado no puede hacer</h2>
+  <p>El Mercadismo Activo no es anarcocapitalismo. Reconoce que ciertos límites a la mercadización no son concesiones al estatismo — son condiciones lógicas para que el propio mercado funcione. Sin estas anclas, el sistema se destruye a sí mismo.</p>
+
+  <table class="limits">
+    <thead>
+      <tr>
+        <th>Recurso / Servicio</th>
+        <th>Mercadizable</th>
+        <th>Razón del límite</th>
+        <th>Criterio aplicado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Parques, plazas, playas</td>
+        <td><span class="tag-yes">Sí</span></td>
+        <td>Competencia técnica posible. Empresa cobra entrada, ofrece servicios, emite acciones.</td>
+        <td>Funcional</td>
+      </tr>
+      <tr>
+        <td>Agua potable urbana</td>
+        <td><span class="tag-yes">Sí</span></td>
+        <td>Infraestructura duplicable. Chile lo hizo con éxito. Competencia por red o por zona.</td>
+        <td>Funcional</td>
+      </tr>
+      <tr>
+        <td>Educación</td>
+        <td><span class="tag-yes">Sí</span></td>
+        <td>Competencia directa entre escuelas. El estado puede financiar vouchers sin operar escuelas.</td>
+        <td>Funcional</td>
+      </tr>
+      <tr>
+        <td>Hospitales y salud</td>
+        <td><span class="tag-yes">Sí</span></td>
+        <td>Competencia total posible. Seguros privados, hospitales privados, precios libres.</td>
+        <td>Funcional / Pragmático</td>
+      </tr>
+      <tr>
+        <td>Seguridad privada</td>
+        <td><span class="tag-yes">Sí</span></td>
+        <td>Complementaria al sistema judicial. No sustituye el monopolio legítimo de la fuerza.</td>
+        <td>Coerción (parcial)</td>
+      </tr>
+      <tr>
+        <td>Electricidad y energía</td>
+        <td><span class="tag-yes">Sí</span></td>
+        <td>Generación y distribución separables. Competencia en generación, acceso abierto en red.</td>
+        <td>Funcional</td>
+      </tr>
+      <tr>
+        <td>Monedas privadas</td>
+        <td><span class="tag-cond">PARCIAL</span></td>
+        <td>Pueden existir en paralelo a la moneda base. No pueden forzar adopción.</td>
+        <td>Coerción</td>
+      </tr>
+      <tr>
+        <td>Arbitraje y mediación</td>
+        <td><span class="tag-cond">PARCIAL</span></td>
+        <td>Válido si ambas partes lo aceptan voluntariamente. No puede sustituir al poder judicial en casos no acordados.</td>
+        <td>Coerción</td>
+      </tr>
+      <tr>
+        <td>Sistema judicial</td>
+        <td><span class="tag-no">NO</span></td>
+        <td>Requiere monopolio coercitivo. Dos sistemas judiciales en paralelo destruyen la certeza jurídica.</td>
+        <td>Coerción</td>
+      </tr>
+      <tr>
+        <td>Defensa nacional</td>
+        <td><span class="tag-no">NO</span></td>
+        <td>Ejércitos privados compiten entre sí generando guerra civil. El monopolio de la fuerza exterior es necesario.</td>
+        <td>Coerción</td>
+      </tr>
+      <tr>
+        <td>Emisión de moneda base</td>
+        <td><span class="tag-no">NO</span></td>
+        <td>La base monetaria requiere unicidad para funcionar como unidad de cuenta. Puede ser fija (patrón) pero no múltiple.</td>
+        <td>Coerción</td>
+      </tr>
+      <tr>
+        <td>Registro de contratos y propiedad</td>
+        <td><span class="tag-no">NO</span></td>
+        <td>El reconocimiento de propiedad requiere un árbitro único reconocido. Es la precondición de todo el sistema.</td>
+        <td>Coerción</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pullquote">
+    <p>"El límite de la mercadización no es una concesión ideológica. Es la condición lógica sin la cual el mercado mismo colapsa. El Mercadismo Activo no teme sus propios límites — los nombra con precisión."</p>
+    <cite>— Principio de coherencia sistémica, Mercadismo Activo</cite>
+  </div>
+</section>
+
+<!-- ROL DEL ESTADO -->
+<section>
+  <span class="section-num">§ 05 — El estado mínimo y preciso</span>
+  <h2>Lo que el estado hace. Nada más.</h2>
+  <p>El rol del estado en el Mercadismo Activo es estrictamente instrumental: crea y mantiene las condiciones para que el mercado opere. No produce, no administra, no compite, no subsidia. Su única función es garantizar el juego limpio.</p>
+
+  <div class="system">
+    <div class="sys-row">
+      <div class="sys-label">SÍ HACE</div>
+      <div class="sys-content">Garantizar contratos — Hacer cumplir acuerdos privados mediante el sistema judicial</div>
+    </div>
+    <div class="sys-row">
+      <div class="sys-label">SÍ HACE</div>
+      <div class="sys-content">Proteger seguridad — Monopolio legítimo de la fuerza contra agresión interna y externa</div>
+    </div>
+    <div class="sys-row">
+      <div class="sys-label">SÍ HACE</div>
+      <div class="sys-content">Administrar subastas — Publicar y auditar procesos de licitación de recursos, sin decidir ganadores por mérito</div>
+    </div>
+    <div class="sys-row">
+      <div class="sys-label">SÍ HACE</div>
+      <div class="sys-content">Registrar propiedad — Mantener el registro público de quién posee qué, base de todo intercambio</div>
+    </div>
+    <div class="sys-row">
+      <div class="sys-label" style="background:#922">NO HACE</div>
+      <div class="sys-content">Regular precios, subsidiar empresas, operar servicios, elegir "ganadores" industriales ni impedir la entrada de competidores</div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIA CON LIBERALISMO CLÁSICO -->
+<section>
+  <span class="section-num">§ 06 — Posición en el espectro económico</span>
+  <h2>Más allá del liberalismo clásico</h2>
+  <p>El Mercadismo Activo comparte los fundamentos del liberalismo austriaco y el anarcocapitalismo — propiedad privada, no agresión, precios libres, rechazo del intervencionismo. Su diferencia es de <em>postura</em>, no de principios.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:.75rem">Liberalismo clásico / Milei</div>
+      <div style="font-size:13px;color:var(--ink-muted);line-height:2">→ Reducir el estado<br>→ Eliminar lo público<br>→ Postura <em>reactiva</em><br>→ El mercado aparece solo<br>→ Enfocado en la destrucción del monopolio</div>
+    </div>
+    <div style="border-left:3px solid var(--accent);padding-left:1.5rem">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem">Mercadismo Activo</div>
+      <div style="font-size:13px;color:var(--ink-muted);line-height:2">→ Generar empresas nuevas<br>→ Privatizar con propiedad popular<br>→ Postura <em>generativa</em><br>→ El mercado se construye activamente<br>→ Enfocado en la creación de competencia</div>
+    </div>
+  </div>
+
+  <p>La analogía es útil: el liberalismo clásico quiere demoler un edificio estatal ineficiente. El Mercadismo Activo quiere demolerlo <em>y</em> construir en su lugar algo mejor, asegurándose de que cualquier ciudadano pueda comprar un ladrillo del edificio nuevo.</p>
+</section>
+
+<!-- CONCLUSIÓN -->
+<section>
+  <span class="section-num">§ 07 — Llamado a la acción</span>
+  <h2>El mercado que no existe aún puede existir</h2>
+  <p>El Mercadismo Activo no es una teoría de lo que el estado debe dejar de hacer. Es una teoría de lo que los ciudadanos, los emprendedores y las comunidades pueden empezar a hacer hoy. Cada recurso subutilizado es una invitación. Cada monopolio estatal es una oportunidad de mercado esperando una subasta pública.</p>
+  <p>La riqueza no se redistribuye — se genera. Y se genera mejor cuando la propiedad está distribuida, la competencia es real y cada ciudadano puede ser accionista de su propio entorno.</p>
+
+  <div class="axiom">
+    <span class="axiom-label">El principio que lo resume todo</span>
+    <p>"No pedimos permiso para crear mercados. Creamos las condiciones para que el mercado sea inevitable."</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-title">Mercadismo Activo</div>
+  <div class="footer-meta">
+    Primera edición · 2025<br>
+    Teoría económica en desarrollo<br>
+    Dominio público — citar con atribución
+  </div>
+</footer>
+
+</body>
+</html>
