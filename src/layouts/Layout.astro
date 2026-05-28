@@ -10,7 +10,7 @@ let navPages: Array<{ slug: string; title: string }> = [];
 try {
   const env = (Astro.locals as any).runtime?.env;
   if (env?.DB) {
-    const res = await env.DB.prepare('SELECT slug, title FROM pages WHERE published=1 ORDER BY title').all();
+    const res = await env.DB.prepare('SELECT slug, title FROM pages WHERE published=1 AND show_in_nav=1 ORDER BY title').all();
     navPages = res.results ?? [];
   }
 } catch {}
@@ -91,6 +91,7 @@ try {
         {navPages.map(p => (
           <a href={`/${p.slug}`} style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:0.875rem;font-weight:500;">{p.title}</a>
         ))}
+        <a href="/datos" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:0.875rem;font-weight:500;">Datos</a>
         <a href="/contacto" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:0.875rem;font-weight:500;">Contacto</a>
       </nav>
     </div>

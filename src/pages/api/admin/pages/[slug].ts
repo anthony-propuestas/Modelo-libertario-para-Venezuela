@@ -10,7 +10,7 @@ export const PUT: APIRoute = async ({ request, locals, params }) => {
   const page = await db.pages.getBySlug(env.DB, params.slug!);
   if (!page) return new Response('Not found', { status: 404 });
 
-  const body = await request.json() as { title?: string; description?: string; published?: number };
+  const body = await request.json() as { title?: string; description?: string; published?: number; show_in_nav?: number };
   await db.pages.update(
     env.DB,
     page.id,
@@ -18,6 +18,10 @@ export const PUT: APIRoute = async ({ request, locals, params }) => {
     body.description !== undefined ? (body.description || null) : page.description,
     body.published ?? page.published
   );
+  if (body.show_in_nav !== undefined) {
+    await env.DB.prepare('UPDATE pages SET show_in_nav=? WHERE id=?')
+      .bind(body.show_in_nav, page.id).run();
+  }
   return Response.json({ ok: true });
 };
 

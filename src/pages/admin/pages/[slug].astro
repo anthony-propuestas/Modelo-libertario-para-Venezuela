@@ -63,10 +63,14 @@ for (const block of allBlocks) {
         <label>Descripción</label>
         <input type="text" name="description" value={page.description ?? ''} placeholder="Descripción breve para la portada" />
       </div>
-      <div style="display:flex;align-items:center;gap:1.25rem;">
+      <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
         <label style="display:flex;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0;font-size:0.875rem;cursor:pointer;font-weight:500;color:var(--text);">
           <input type="checkbox" name="published" checked={page.published === 1} style="width:auto;accent-color:var(--azul);" />
           Publicado (visible en el sitio)
+        </label>
+        <label style="display:flex;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0;font-size:0.875rem;cursor:pointer;font-weight:500;color:var(--text);">
+          <input type="checkbox" name="show_in_nav" checked={page.show_in_nav === 1} style="width:auto;accent-color:var(--azul);" />
+          Mostrar en navegación
         </label>
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
       </div>
@@ -292,6 +296,7 @@ for (const block of allBlocks) {
         title: f.title.value,
         description: f.description.value || null,
         published: f.published.checked ? 1 : 0,
+        show_in_nav: f.show_in_nav.checked ? 1 : 0,
       }),
     });
     res.ok ? showToast('Guardado') : showToast('Error al guardar', false);
