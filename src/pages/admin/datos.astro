@@ -9,11 +9,17 @@ if (!valid) return Astro.redirect('/admin');
 type Seccion = { id: number; nombre: string; order_index: number };
 type Item = { id: number; seccion_id: number; nombre: string; valor: string; order_index: number };
 
-const secRes = await env.DB.prepare('SELECT * FROM datos_secciones ORDER BY order_index').all();
-const secciones: Seccion[] = secRes.results ?? [];
-
-const itemRes = await env.DB.prepare('SELECT * FROM datos_items ORDER BY seccion_id, order_index').all();
-const items: Item[] = itemRes.results ?? [];
+let secciones: Seccion[] = [];
+let items: Item[] = [];
+let dbError = '';
+try {
+  const secRes = await env.DB.prepare('SELECT * FROM datos_secciones ORDER BY order_index').all();
+  secciones = secRes.results ?? [];
+  const itemRes = await env.DB.prepare('SELECT * FROM datos_items ORDER BY seccion_id, order_index').all();
+  items = itemRes.results ?? [];
+} catch (e: any) {
+  dbError = e?.message ?? 'Error de base de datos';
+}
 
 function itemsPorSeccion(seccionId: number) {
   return items.filter((i: Item) => i.seccion_id === seccionId);
@@ -23,6 +29,12 @@ function itemsPorSeccion(seccionId: number) {
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
     <h1 style="font-size:1.3rem;font-weight:700;">Datos</h1>
   </div>
+
+  {dbError && (
+    <div style="background:#7f1d1d;color:#fca5a5;padding:1rem;border-radius:6px;margin-bottom:1.5rem;font-size:0.9rem;">
+      Error de base de datos: {dbError}. Asegúrate de haber aplicado la migración con <code>wrangler d1 migrations apply liberal-venezuela-db --remote</code>.
+    </div>
+  )}
 
   <!-- Nueva sección -->
   <div class="card" style="margin-bottom:2rem;">
