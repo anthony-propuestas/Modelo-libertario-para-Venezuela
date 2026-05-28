@@ -50,6 +50,10 @@ export const pages = {
     db.prepare('UPDATE pages SET title=?, description=?, published=? WHERE id=?')
       .bind(title, description, published, id).run(),
 
+  updateWithSlug: (db: DB, id: number, slug: string, title: string, description: string | null, published: number) =>
+    db.prepare('UPDATE pages SET slug=?, title=?, description=?, published=? WHERE id=?')
+      .bind(slug, title, description, published, id).run(),
+
   delete: (db: DB, id: number) =>
     db.prepare('DELETE FROM pages WHERE id=?').bind(id).run(),
 };

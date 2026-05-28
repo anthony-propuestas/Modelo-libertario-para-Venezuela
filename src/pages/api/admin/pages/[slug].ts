@@ -10,19 +10,43 @@ export const PUT: APIRoute = async ({ request, locals, params }) => {
   const page = await db.pages.getBySlug(env.DB, params.slug!);
   if (!page) return new Response('Not found', { status: 404 });
 
-  const body = await request.json() as { title?: string; description?: string; published?: number; show_in_nav?: number };
-  await db.pages.update(
-    env.DB,
-    page.id,
-    body.title ?? page.title,
-    body.description !== undefined ? (body.description || null) : page.description,
-    body.published ?? page.published
-  );
+  const body = await request.json() as { title?: string; description?: string; published?: number; show_in_nav?: number; slug?: string };
+  const newSlug = body.slug?.trim();
+
+  if (newSlug !== undefined) {
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
+      return new Response('Slug inválido: solo minúsculas, números y guiones', { status: 400 });
+    }
+    try {
+      await db.pages.updateWithSlug(
+        env.DB,
+        page.id,
+        newSlug,
+        body.title ?? page.title,
+        body.description !== undefined ? (body.description || null) : page.description,
+        body.published ?? page.published
+      );
+    } catch (e: any) {
+      if (e?.message?.includes('UNIQUE')) {
+        return new Response('Ese slug ya está en uso', { status: 409 });
+      }
+      throw e;
+    }
+  } else {
+    await db.pages.update(
+      env.DB,
+      page.id,
+      body.title ?? page.title,
+      body.description !== undefined ? (body.description || null) : page.description,
+      body.published ?? page.published
+    );
+  }
+
   if (body.show_in_nav !== undefined) {
     await env.DB.prepare('UPDATE pages SET show_in_nav=? WHERE id=?')
       .bind(body.show_in_nav, page.id).run();
   }
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, newSlug: newSlug ?? params.slug });
 };
 
 export const DELETE: APIRoute = async ({ request, locals, params }) => {

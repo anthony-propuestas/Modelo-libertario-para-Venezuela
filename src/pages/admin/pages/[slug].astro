@@ -56,7 +56,7 @@ for (const block of allBlocks) {
         </div>
         <div class="field" style="margin:0;">
           <label>URL (slug)</label>
-          <input type="text" value={`/${page.slug}`} disabled style="background:var(--surface);color:var(--muted);" />
+          <input type="text" name="slug" id="page-slug" value={page.slug} pattern="[a-z0-9][a-z0-9-]*[a-z0-9]" required style="font-family:monospace;" />
         </div>
       </div>
       <div class="field" style="margin:1rem 0 0.75rem;">
@@ -286,20 +286,38 @@ for (const block of allBlocks) {
   });
 
   // ── Page metadata ──────────────────────────────────────────────
+  document.querySelector('[name="title"]').addEventListener('input', function() {
+    document.getElementById('page-slug').value = this.value.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  });
+
   document.getElementById('page-meta-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = e.target;
+    const newSlug = f.slug.value.trim();
     const res = await fetch(`/api/admin/pages/${pageSlug}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: f.title.value,
+        slug: newSlug,
         description: f.description.value || null,
         published: f.published.checked ? 1 : 0,
         show_in_nav: f.show_in_nav.checked ? 1 : 0,
       }),
     });
-    res.ok ? showToast('Guardado') : showToast('Error al guardar', false);
+    if (!res.ok) {
+      const msg = await res.text();
+      showToast(msg || 'Error al guardar', false);
+      return;
+    }
+    const data = await res.json();
+    if (data.newSlug && data.newSlug !== pageSlug) {
+      window.location.href = `/admin/pages/${data.newSlug}`;
+    } else {
+      showToast('Guardado');
+    }
   });
 
   // ── New section ─────────────────────────────────────────────────
